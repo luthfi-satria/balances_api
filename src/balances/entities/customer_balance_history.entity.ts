@@ -46,7 +46,7 @@ export class CustomerBalanceHistoryDocument {
   })
   status: TransactionStatus;
 
-  @Column()
+  @Column({ nullable: true })
   recorded_at: Date;
 
   @CreateDateColumn({ type: 'timestamptz' })
