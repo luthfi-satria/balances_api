@@ -39,7 +39,7 @@ async function bootstrap() {
         opt.durable('balances');
 
         // queue group
-        opt.queue('balance');
+        opt.queue('balances');
       },
     }),
   });
