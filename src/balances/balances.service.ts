@@ -13,11 +13,14 @@ export class BalancesService {
   ) {}
 
   async saveCustomerRefund(data: any) {
+    let totalPayment = 0;
+    if (data.total_payment) totalPayment = data.total_payment;
+
     const custBalanceHistoryData: Partial<CustomerBalanceHistoryDocument> = {
-      order_id: data.order_id,
+      order_id: data.id,
       customer_id: data.customer_id,
       type: TransactionType.REFUND,
-      amount: data.total + data.delivery_fee + data.admin_fee,
+      amount: totalPayment,
       status: TransactionStatus.SUCCESS,
       recorded_at: data.transaction_date,
     };

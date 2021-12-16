@@ -36,10 +36,10 @@ async function bootstrap() {
       ],
       consumer: (opt) => {
         // durable
-        opt.durable('balances');
+        opt.durable('balances2');
 
         // queue group
-        opt.queue('balance');
+        opt.queue('balances2');
       },
     }),
   });

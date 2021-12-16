@@ -15,6 +15,7 @@ export class NatsController {
   @EventPattern('orders.order.cancelled_by_store.other')
   async saveMenuEfood(@Payload() data: any) {
     this.logger.log('orders.order.accepted');
+    console.log('payload: ', data);
     this.balancesService.saveCustomerRefund(data);
   }
 }
