@@ -46,8 +46,8 @@ async function bootstrap() {
 
   microservice.listen();
 
-  app.listen(process.env.PORT || 4010, () => {
-    logger.log(`Running on ${process.env.PORT || 4010}`);
+  app.listen(process.env.HTTP_PORT || 4010, () => {
+    logger.log(`Running on ${process.env.HTTP_PORT || 4010}`);
   });
 }
 bootstrap();
