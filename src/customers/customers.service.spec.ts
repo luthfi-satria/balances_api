@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CustomerBalanceHistoryRepository } from 'src/balances/repository/customer_balance_history.repository';
+import { CustomerBalanceHistoryRepository } from 'src/customers/repository/customer_balance_history.repository';
 import { CustomersService } from './customers.service';
 
 describe('CustomersService', () => {

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BalancesService } from './balances.service';
-import { CustomerBalanceHistoryRepository } from './repository/customer_balance_history.repository';
+import { CustomerBalanceHistoryRepository } from '../customers/repository/customer_balance_history.repository';
 
 describe('BalancesService', () => {
   let service: BalancesService;

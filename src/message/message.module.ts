@@ -1,0 +1,16 @@
+import { Global, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { MessageService } from './message.service';
+
+@Global()
+@Module({
+  providers: [
+    {
+      provide: 'MessageService',
+      useClass: MessageService,
+    },
+  ],
+  exports: [MessageService],
+  imports: [ConfigModule.forRoot()],
+})
+export class MessageModule {}

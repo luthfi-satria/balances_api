@@ -3,8 +3,9 @@ import {
   CustomerBalanceHistoryDocument,
   TransactionStatus,
   TransactionType,
-} from 'src/balances/entities/customer_balance_history.entity';
-import { CustomerBalanceHistoryRepository } from 'src/balances/repository/customer_balance_history.repository';
+} from 'src/customers/entities/customer_balance_history.entity';
+import { CustomerBalanceHistoryRepository } from 'src/customers/repository/customer_balance_history.repository';
+import { ListResponse } from 'src/response/response.interface';
 
 @Injectable()
 export class CustomersService {
@@ -27,7 +28,19 @@ export class CustomersService {
     this.customerBalanceHistoryRepository.save(custBalanceHistoryData);
   }
 
-  async listCustomerBalanceHistories(data: any): Promise<any> {
-    return this.customerBalanceHistoryRepository.find();
+  async listCustomerBalanceHistories(
+    data: any,
+    customer_id: string,
+  ): Promise<ListResponse> {
+    return this.customerBalanceHistoryRepository.findListCustomersBalanceHistories(
+      data,
+      customer_id,
+    );
+  }
+
+  async detailCustomerBalance(customer_id: string): Promise<ListResponse> {
+    return this.customerBalanceHistoryRepository.detailCustomersBalance(
+      customer_id,
+    );
   }
 }

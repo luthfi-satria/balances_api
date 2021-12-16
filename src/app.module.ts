@@ -7,6 +7,7 @@ import { BalancesModule } from './balances/balances.module';
 import { DatabaseService } from './database/database.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomersModule } from './customers/customers.module';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -16,8 +17,9 @@ import { CustomersModule } from './customers/customers.module';
     CommonModule,
     BalancesModule,
     CustomersModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, DatabaseService],
+  providers: [AppService],
 })
 export class AppModule {}

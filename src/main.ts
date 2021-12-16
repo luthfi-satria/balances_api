@@ -39,15 +39,15 @@ async function bootstrap() {
         opt.durable('balances');
 
         // queue group
-        opt.queue('balances');
+        opt.queue('balance');
       },
     }),
   });
 
   microservice.listen();
 
-  app.listen(process.env.PORT || 3000, () => {
-    logger.log(`Running on ${process.env.PORT || 3000}`);
+  app.listen(process.env.PORT || 4010, () => {
+    logger.log(`Running on ${process.env.PORT || 4010}`);
   });
 }
 bootstrap();
