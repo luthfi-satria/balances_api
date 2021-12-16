@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
+import { CustomersService } from './customers.service';
+import { CustomersController } from './customers.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomerBalanceHistoryRepository } from 'src/balances/repository/customer_balance_history.repository';
-import { CustomersService } from 'src/customers/customers.service';
-import { NatsController } from './nats/nats.controller';
-import { NatsService } from './nats/nats.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([CustomerBalanceHistoryRepository])],
-  controllers: [NatsController],
-  providers: [NatsService, CustomersService],
+  providers: [CustomersService],
+  controllers: [CustomersController],
 })
-export class CommonModule {}
+export class CustomersModule {}

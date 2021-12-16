@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BalancesService } from 'src/balances/balances.service';
+import { CustomersService } from 'src/customers/customers.service';
 import { NatsController } from './nats.controller';
 
 describe('NatsController', () => {
@@ -10,7 +10,7 @@ describe('NatsController', () => {
       controllers: [NatsController],
       providers: [
         {
-          provide: BalancesService,
+          provide: CustomersService,
           useValue: {},
         },
       ],

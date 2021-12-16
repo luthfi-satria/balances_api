@@ -6,6 +6,7 @@ import { CommonModule } from './common/common.module';
 import { BalancesModule } from './balances/balances.module';
 import { DatabaseService } from './database/database.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CustomersModule } from './customers/customers.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -14,6 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     }),
     CommonModule,
     BalancesModule,
+    CustomersModule,
   ],
   controllers: [AppController],
   providers: [AppService, DatabaseService],
