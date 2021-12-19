@@ -1,6 +1,9 @@
 export default {
   general: {
-    success: 'SUCCESS',
+    success: {
+      code: 'SUCCESS',
+      message: 'SUCCESS.',
+    },
     empty_token: 'Kode Token tidak ada.',
     invalid_token: 'Kode Token tidak valid.',
     dataNotFound: {
@@ -19,9 +22,17 @@ export default {
       code: 'IMAGE_NOT_FOUND',
       message: 'File image kosong.',
     },
+    failedDeleteData: {
+      code: 'FAILED_DELETE_DATA',
+      message: 'Gagal Hapus data.',
+    },
     failedFetchData: {
       code: 'FAILED_FETCH_DATA',
       message: 'Gagal Ambil data.',
+    },
+    failedSaveData: {
+      code: 'FAILED_SAVED_DATA',
+      message: 'Gagal Simpan data.',
     },
     failedTransaction: {
       code: 'TRANSACTION_FAILED',

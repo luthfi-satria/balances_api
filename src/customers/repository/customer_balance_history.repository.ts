@@ -1,6 +1,6 @@
 import { ListResponse } from 'src/response/response.interface';
 import { EntityRepository, Repository } from 'typeorm';
-// import { ListCustomersBalanceHistoriesDto } from '../dto/customers_balance_histories.dto';
+import { ListCustomersBalancesDto } from '../dto/customers_balance.dto';
 import { CustomerBalanceHistoryDocument } from '../entities/customer_balance_history.entity';
 
 @EntityRepository(CustomerBalanceHistoryDocument)
@@ -10,7 +10,7 @@ export class CustomerBalanceHistoryRepository extends Repository<CustomerBalance
   }
 
   async findListCustomersBalanceHistories(
-    data: any,
+    data: ListCustomersBalancesDto,
     customer_id: string,
   ): Promise<ListResponse> {
     const currentPage = data.page || 1;

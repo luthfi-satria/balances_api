@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CustomersService } from 'src/customers/customers.service';
+import { MessageService } from 'src/message/message.service';
 import { NatsController } from './nats.controller';
 
 describe('NatsController', () => {
@@ -13,6 +14,7 @@ describe('NatsController', () => {
           provide: CustomersService,
           useValue: {},
         },
+        MessageService,
       ],
     }).compile();
 

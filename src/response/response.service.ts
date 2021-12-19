@@ -1,4 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { MessageService } from 'src/message/message.service';
 import {
   IResponseError,
   IResponsePaging,
@@ -8,6 +14,8 @@ import {
 
 @Injectable()
 export class ResponseService {
+  constructor(private readonly messageService: MessageService) {}
+
   error(
     statusCode: number,
     message: RMessage,
@@ -62,5 +70,27 @@ export class ResponseService {
       perPage,
       data,
     };
+  }
+
+  async httpExceptionHandling(
+    value: any,
+    property: string,
+    message: string,
+    statusCode: number,
+  ): Promise<BadRequestException> {
+    const messageData = {
+      value: value,
+      property: property,
+      constraint: [this.messageService.get(message)],
+    };
+    if (statusCode == 404) {
+      return new NotFoundException(
+        this.error(HttpStatus.NOT_FOUND, messageData, 'NOT FOUND'),
+      );
+    } else {
+      return new BadRequestException(
+        this.error(HttpStatus.BAD_REQUEST, messageData, 'BAD REQUEST'),
+      );
+    }
   }
 }

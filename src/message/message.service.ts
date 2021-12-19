@@ -46,4 +46,13 @@ export class MessageService {
 
     return selectedMessage as string;
   }
+
+  getRequestErrorsMessage(requestErrors: Record<string, any>[]): string {
+    const messageErrors: string[] = requestErrors.map((value) => {
+      for (const i in value.constraints) {
+        return value.property[0];
+      }
+    });
+    return messageErrors[0];
+  }
 }

@@ -6,11 +6,14 @@ import {
 } from 'src/customers/entities/customer_balance_history.entity';
 import { CustomerBalanceHistoryRepository } from 'src/customers/repository/customer_balance_history.repository';
 import { ListResponse } from 'src/response/response.interface';
+import { ResponseService } from 'src/response/response.service';
+import { ListCustomersBalancesDto } from './dto/customers_balance.dto';
 
 @Injectable()
 export class CustomersService {
   constructor(
     private readonly customerBalanceHistoryRepository: CustomerBalanceHistoryRepository,
+    private readonly responseService: ResponseService,
   ) {}
 
   async saveCustomerRefund(data: any) {
@@ -29,18 +32,50 @@ export class CustomersService {
   }
 
   async listCustomerBalanceHistories(
-    data: any,
+    data: ListCustomersBalancesDto,
     customer_id: string,
   ): Promise<ListResponse> {
-    return this.customerBalanceHistoryRepository.findListCustomersBalanceHistories(
-      data,
-      customer_id,
-    );
+    const custBalances = await this.customerBalanceHistoryRepository
+      .findListCustomersBalanceHistories(data, customer_id)
+      .catch(async () => {
+        throw await this.responseService.httpExceptionHandling(
+          customer_id,
+          'customer_id',
+          'general.general.dataNotFound',
+          404,
+        );
+      });
+    if (!custBalances) {
+      throw await this.responseService.httpExceptionHandling(
+        customer_id,
+        'customer_id',
+        'general.general.dataNotFound',
+        404,
+      );
+    }
+    return custBalances;
   }
 
   async detailCustomerBalance(customer_id: string): Promise<ListResponse> {
-    return this.customerBalanceHistoryRepository.detailCustomersBalance(
-      customer_id,
-    );
+    const custBalance = await this.customerBalanceHistoryRepository
+      .detailCustomersBalance(customer_id)
+      .catch(async (err) => {
+        console.error(err);
+        throw await this.responseService.httpExceptionHandling(
+          customer_id,
+          'customer_id',
+          'general.general.dataNotFound',
+          404,
+        );
+      });
+    if (!custBalance) {
+      throw await this.responseService.httpExceptionHandling(
+        customer_id,
+        'customer_id',
+        'general.general.dataNotFound',
+        404,
+      );
+    }
+    return custBalance;
   }
 }

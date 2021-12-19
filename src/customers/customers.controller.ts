@@ -6,6 +6,7 @@ import { ResponseStatusCode } from 'src/response/response.decorator';
 import { RSuccessMessage } from 'src/response/response.interface';
 import { ResponseService } from 'src/response/response.service';
 import { CustomersService } from './customers.service';
+import { ListCustomersBalancesDto } from './dto/customers_balance.dto';
 
 @Controller('api/v1/balances')
 export class CustomersController {
@@ -20,7 +21,7 @@ export class CustomersController {
   @AuthJwtGuard()
   @ResponseStatusCode()
   async listCustomerBalanceHistories(
-    @Query() data: any,
+    @Query() data: ListCustomersBalancesDto,
     @Req() req: any,
   ): Promise<RSuccessMessage> {
     const result = await this.customersService.listCustomerBalanceHistories(
@@ -54,7 +55,7 @@ export class CustomersController {
   @AuthJwtGuard()
   @ResponseStatusCode()
   async listCustomerBalanceHistoriesByAdmin(
-    @Query() data: any,
+    @Query() data: ListCustomersBalancesDto,
     @Param('cid') cid: string,
   ): Promise<RSuccessMessage> {
     const result = await this.customersService.listCustomerBalanceHistories(
