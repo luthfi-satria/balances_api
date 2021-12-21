@@ -17,18 +17,21 @@ export class CustomersService {
   ) {}
 
   async saveCustomerRefund(data: any) {
-    let totalPayment = 0;
-    if (data.total_payment) totalPayment = data.total_payment;
+    if (data.platform == 'ONLINE') {
+      let totalPayment = 0;
+      if (data.total_payment) totalPayment = data.total_payment;
 
-    const custBalanceHistoryData: Partial<CustomerBalanceHistoryDocument> = {
-      order_id: data.id,
-      customer_id: data.customer_id,
-      type: TransactionType.REFUND,
-      amount: totalPayment,
-      status: TransactionStatus.SUCCESS,
-      recorded_at: data.transaction_date,
-    };
-    this.customerBalanceHistoryRepository.save(custBalanceHistoryData);
+      const custBalanceHistoryData: Partial<CustomerBalanceHistoryDocument> = {
+        order_id: data.id,
+        customer_id: data.customer_id,
+        type: TransactionType.REFUND,
+        amount: totalPayment,
+        status: TransactionStatus.SUCCESS,
+        recorded_at: data.transaction_date,
+        eligible_at: data.transaction_date,
+      };
+      this.customerBalanceHistoryRepository.save(custBalanceHistoryData);
+    }
   }
 
   async listCustomerBalanceHistories(
@@ -77,5 +80,15 @@ export class CustomersService {
       );
     }
     return custBalance;
+  }
+
+  async saveCustomerBalanceHistory(
+    data: Partial<CustomerBalanceHistoryDocument>,
+  ): Promise<CustomerBalanceHistoryDocument> {
+    return this.customerBalanceHistoryRepository.save(data);
+  }
+
+  async findCustomerBalanceByCriteria(data: Record<string, any>) {
+    return this.customerBalanceHistoryRepository.findOne({ where: data });
   }
 }

@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CustomerBalanceHistoryDocument } from './customer_balance_history.entity';
 
 @Entity({ name: 'balances_customer_bank' })
 export class CustomerBankDocument {
@@ -23,6 +25,12 @@ export class CustomerBankDocument {
 
   @Column()
   account_name: string;
+
+  @OneToMany(
+    () => CustomerBalanceHistoryDocument,
+    (history) => history.customer_bank,
+  )
+  customer_balance_history: CustomerBalanceHistoryDocument[];
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date | string;

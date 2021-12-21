@@ -46,6 +46,10 @@ export default {
       code: 'INVALID_ID',
       message: 'ID tidak ditemukan.',
     },
+    inactiveStatus: {
+      code: 'INACTIVE_STATUS',
+      message: 'Status tidak aktif.',
+    },
     invalidID: {
       code: 'INVALID_ID',
       message: 'ID tidak valid.',
@@ -62,6 +66,10 @@ export default {
       code: 'NAME_ALREADY_EXISTS',
       message: 'Nama sudah digunakan.',
     },
+    overLimit: {
+      code: 'OVER_LIMIT',
+      message: 'Value melebihi batas maksimum.',
+    },
     phoneExist: {
       code: 'PHONE_ALREADY_EXISTS',
       message: 'Nomor Telepon sudah digunakan.',
@@ -77,6 +85,14 @@ export default {
     unauthorizedUser: {
       code: 'USER_UNAUTHORIZED',
       message: 'User tidak mendapatkan akses.',
+    },
+    underLimit: {
+      code: 'UNDER_LIMIT',
+      message: 'Value di bawah batas minimum.',
+    },
+    unpermittedPlatform: {
+      code: 'PLATFORM_UNPERMITTED',
+      message: 'Platform tidak diijinkan.',
     },
     unverificatedUser: {
       code: 'USER_NOT_VERIFIED',

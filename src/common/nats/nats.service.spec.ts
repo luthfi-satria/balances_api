@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { NatsService } from './nats.service';
 
@@ -6,7 +7,13 @@ describe('NatsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [NatsService],
+      imports: [HttpModule],
+      providers: [
+        {
+          provide: NatsService,
+          useValue: {},
+        },
+      ],
     }).compile();
 
     service = module.get<NatsService>(NatsService);

@@ -1,7 +1,10 @@
 import { ListResponse } from 'src/response/response.interface';
 import { EntityRepository, Repository } from 'typeorm';
 import { ListCustomersBalancesDto } from '../dto/customers_balance.dto';
-import { CustomerBalanceHistoryDocument } from '../entities/customer_balance_history.entity';
+import {
+  CustomerBalanceHistoryDocument,
+  TransactionStatus,
+} from '../entities/customer_balance_history.entity';
 
 @EntityRepository(CustomerBalanceHistoryDocument)
 export class CustomerBalanceHistoryRepository extends Repository<CustomerBalanceHistoryDocument> {
@@ -56,6 +59,9 @@ export class CustomerBalanceHistoryRepository extends Repository<CustomerBalance
       .select('sum(amount)', 'balance')
       .where('customer_id = :cid', {
         cid: customer_id,
+      })
+      .andWhere('status IN (:...stat)', {
+        stat: [TransactionStatus.SUCCESS, TransactionStatus.INPROCESS],
       });
 
     try {
