@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CommonService } from 'src/common/common.service';
+import { NatsService } from 'src/common/nats/nats.service';
 import { ResponseService } from 'src/response/response.service';
 import { BanksService } from './banks.service';
 import { CustomersService } from './customers.service';
@@ -26,6 +27,7 @@ export class DisbursementService {
     private readonly commonService: CommonService,
     private readonly customersService: CustomersService,
     private readonly customerDisbursementHistoryRepository: CustomerDisbursementHistoryRepository,
+    private readonly natsService: NatsService,
   ) {}
 
   async disbursement(
@@ -57,7 +59,6 @@ export class DisbursementService {
     const customerBalance: any =
       await this.customersService.detailCustomerBalance(customer_id);
     const maxBalance = Number(customerBalance.balance);
-    console.log('maxBalance ', maxBalance);
 
     if (
       data.amount > maxBalance ||
@@ -83,7 +84,6 @@ export class DisbursementService {
       // Get Customer Phone
       const urlCustomer = `${process.env.BASEURL_CUSTOMERS_SERVICE}/api/v1/internal/customers/${customer_id}`;
       const customer: any = await this.commonService.getHttp(urlCustomer);
-      console.log('customer ', customer);
 
       flagThrowpass = true;
       try {
@@ -94,7 +94,6 @@ export class DisbursementService {
           user_type: 'customer_disbursement',
         };
         const auth: any = await this.commonService.postHttp(urlOtp, body);
-        console.log('auth ', auth);
 
         return auth;
       } catch (err: any) {
@@ -171,7 +170,7 @@ export class DisbursementService {
       // Get Customer Phone
       const urlCustomer = `${process.env.BASEURL_CUSTOMERS_SERVICE}/api/v1/internal/customers/${customer_id}`;
       const customer: any = await this.commonService.getHttp(urlCustomer);
-      console.log('customer: ', customer);
+
       if (customer.phone_verified_at === null) {
         flagThrowpass = true;
         throw await this.responseService.httpExceptionHandling(
@@ -193,7 +192,7 @@ export class DisbursementService {
           user_type: 'customer_disbursement',
         };
         const auth: any = await this.commonService.postHttp(urlOtp, body);
-        console.log('auth ', auth);
+
         if (auth.statusCode) {
           throw await this.responseService.httpExceptionHandling(
             `${auth.message[0].value}`,
@@ -221,6 +220,11 @@ export class DisbursementService {
           customer_balance_history: customerBalanceHistory,
           status: DisbursementTransactionStatus.INPROCESS,
         };
+
+        //Broadcast
+        const eventName = 'balances.disbursement.customer.created';
+        this.natsService.clientEmit(eventName, customerBalanceHistory);
+
         return await this.customerDisbursementHistoryRepository.save(
           disbursementData,
         );

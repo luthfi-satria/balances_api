@@ -12,6 +12,7 @@ import { CommonService } from 'src/common/common.service';
 import { CustomerDisbursementHistoryRepository } from 'src/customers/repository/customer_disbursement_history.repository';
 import { CustomerBankRepository } from 'src/customers/repository/customer_bank.repository';
 import { HttpModule } from '@nestjs/axios';
+import { NatsService } from 'src/common/nats/nats.service';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { HttpModule } from '@nestjs/axios';
     MessageService,
     BanksService,
     CommonService,
+    NatsService,
   ],
 })
 export class BalancesModule {}

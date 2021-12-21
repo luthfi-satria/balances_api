@@ -2,6 +2,7 @@ import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
+import { NatsService } from 'src/common/nats/nats.service';
 import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
 import { BanksService } from './banks.service';
@@ -34,6 +35,10 @@ describe('DisbursementService', () => {
         MessageService,
         {
           provide: getRepositoryToken(CustomerBalanceHistoryRepository),
+          useValue: {},
+        },
+        {
+          provide: NatsService,
           useValue: {},
         },
       ],

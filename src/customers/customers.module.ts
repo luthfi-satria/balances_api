@@ -13,6 +13,7 @@ import { DisbursementService } from './disbursement.service';
 import { CommonService } from 'src/common/common.service';
 import { HttpModule } from '@nestjs/axios';
 import { CustomerDisbursementHistoryRepository } from './repository/customer_disbursement_history.repository';
+import { NatsService } from 'src/common/nats/nats.service';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CustomerDisbursementHistoryRepository } from './repository/customer_dis
     MessageService,
     DisbursementService,
     CommonService,
+    NatsService,
   ],
   controllers: [CustomersController, BanksController, DisbursementController],
 })

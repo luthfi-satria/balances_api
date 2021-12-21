@@ -11,6 +11,7 @@ import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
 import { CommonService } from '../common.service';
 import { NatsController } from './nats.controller';
+import { NatsService } from './nats.service';
 
 describe('NatsController', () => {
   let controller: NatsController;
@@ -36,6 +37,10 @@ describe('NatsController', () => {
         },
         {
           provide: getRepositoryToken(CustomerBankRepository),
+          useValue: {},
+        },
+        {
+          provide: NatsService,
           useValue: {},
         },
       ],

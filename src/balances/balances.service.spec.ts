@@ -11,6 +11,7 @@ import { CommonService } from 'src/common/common.service';
 import { CustomerDisbursementHistoryRepository } from 'src/customers/repository/customer_disbursement_history.repository';
 import { CustomerBankRepository } from 'src/customers/repository/customer_bank.repository';
 import { HttpModule } from '@nestjs/axios';
+import { NatsService } from 'src/common/nats/nats.service';
 
 describe('BalancesService', () => {
   let service: BalancesService;
@@ -36,6 +37,10 @@ describe('BalancesService', () => {
         },
         {
           provide: getRepositoryToken(CustomerBankRepository),
+          useValue: {},
+        },
+        {
+          provide: NatsService,
           useValue: {},
         },
       ],
