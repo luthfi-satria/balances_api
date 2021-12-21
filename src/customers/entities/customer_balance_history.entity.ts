@@ -3,9 +3,12 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CustomerBankDocument } from './customer_bank.entity';
 
 export enum TransactionType {
   REFUND = 'REFUND',
@@ -23,7 +26,7 @@ export class CustomerBalanceHistoryDocument {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ nullable: true })
   order_id: string;
 
   @Column()
@@ -48,6 +51,21 @@ export class CustomerBalanceHistoryDocument {
 
   @Column({ nullable: true, type: 'timestamptz' })
   recorded_at: Date | string;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  eligible_at: Date | string;
+
+  @ManyToOne(() => CustomerBankDocument, (cb) => cb.customer_balance_history, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'customer_bank_id', referencedColumnName: 'id' })
+  customer_bank: CustomerBankDocument;
+
+  // @OneToMany(
+  //   () => CustomerDisbursementHistoryDocument,
+  //   (history) => history.customer_balance_history,
+  // )
+  // customer_disbursement_history: CustomerDisbursementHistoryDocument[];
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date | string;

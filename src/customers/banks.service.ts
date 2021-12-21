@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { CommonService } from 'src/common/common.service';
+import { ListResponse } from 'src/response/response.interface';
 import { ResponseService } from 'src/response/response.service';
 import {
   AddCustomerBankDto,
@@ -13,6 +15,7 @@ export class BanksService {
   constructor(
     private readonly customerBankRepository: CustomerBankRepository,
     private readonly responseService: ResponseService,
+    private readonly commonService: CommonService,
   ) {}
 
   async addBankDestination(
@@ -112,7 +115,7 @@ export class BanksService {
     bank_id: string,
     customer_id: string,
   ): Promise<any> {
-    const customerBank = await this.customerBankRepository
+    const customerBank: any = await this.customerBankRepository
       .findOne({
         where: { id: bank_id, customer_id: customer_id },
       })
@@ -133,14 +136,17 @@ export class BanksService {
         404,
       );
     }
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${customerBank.disbursement_method_id}`;
+    const disbursementMethod = await this.commonService.getHttp(url);
+    customerBank.disbursement_method = disbursementMethod;
     return customerBank;
   }
 
   async listBankDestination(
     data: ListCustomersBankDto,
     customer_id: string,
-  ): Promise<any> {
-    const customerBank = await this.customerBankRepository
+  ): Promise<ListResponse> {
+    const customerBank: any = await this.customerBankRepository
       .findListCustomersBank(data, customer_id)
       .catch(async (err3) => {
         console.error(err3);
@@ -159,6 +165,15 @@ export class BanksService {
         404,
       );
     }
+    for (const custBank of customerBank.items) {
+      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${custBank.disbursement_method_id}`;
+      const disbursementMethod = await this.commonService.getHttp(url);
+      custBank.disbursement_method = disbursementMethod;
+    }
     return customerBank;
+  }
+
+  async findCustomerBankById(bank_id: string): Promise<CustomerBankDocument> {
+    return this.customerBankRepository.findOne(bank_id);
   }
 }

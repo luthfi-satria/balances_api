@@ -1,5 +1,7 @@
+import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { CommonService } from 'src/common/common.service';
 import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
 import { BanksController } from './banks.controller';
@@ -11,6 +13,7 @@ describe('BanksController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [HttpModule],
       controllers: [BanksController],
       providers: [
         BanksService,
@@ -20,6 +23,7 @@ describe('BanksController', () => {
           provide: getRepositoryToken(CustomerBankRepository),
           useValue: {},
         },
+        CommonService,
       ],
     }).compile();
 
