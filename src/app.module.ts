@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomersModule } from './customers/customers.module';
 import { AuthModule } from './auth/auth.module';
 import { SettingsModule } from './settings/settings.module';
+import { SeederModule } from './database/seeders/seeder.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -20,6 +21,7 @@ import { SettingsModule } from './settings/settings.module';
     CustomersModule,
     AuthModule,
     SettingsModule,
+    SeederModule,
   ],
   controllers: [AppController],
   providers: [AppService],
