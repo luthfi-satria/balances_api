@@ -81,6 +81,7 @@ export class CustomersService {
       'eligible_disburse_min_amount',
     ]);
     const disburseMinAmount = Number(balanceSetting[0].value);
+    console.log('disburseMinAmount ', disburseMinAmount);
 
     const custBalance = await this.customerBalanceHistoryRepository
       .detailCustomersBalance(customer_id, disburseMinAmount)

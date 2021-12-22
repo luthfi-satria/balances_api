@@ -58,7 +58,7 @@ export class DisbursementService {
     const disbursementMethod: any = await this.commonService.getHttp(url);
     const customerBalance: any =
       await this.customersService.detailCustomerBalance(customer_id);
-    const maxBalance = Number(customerBalance.balance);
+    const maxBalance = customerBalance.eligible_balance;
 
     if (
       data.amount > maxBalance ||
@@ -145,7 +145,7 @@ export class DisbursementService {
     const disbursementMethod: any = await this.commonService.getHttp(url);
     const customerBalance: any =
       await this.customersService.detailCustomerBalance(customer_id);
-    const maxBalance = Number(customerBalance.balance);
+    const maxBalance = Number(customerBalance.eligible_balance);
     if (
       data.amount > maxBalance ||
       data.amount > disbursementMethod.max_amount
