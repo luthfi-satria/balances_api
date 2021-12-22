@@ -91,9 +91,7 @@ export class CustomerBalanceHistoryRepository extends Repository<CustomerBalance
       const eligibleBalance: any = await qeligibleBalance.getRawOne();
       const disbursementInProcess: any =
         await qdisbursementInProcess.getRawOne();
-
-      console.log('eligibleBalance ', eligibleBalance);
-      const balances = {
+      return {
         balance: Number(balance.balance),
         eligible_balance:
           Number(eligibleBalance.balance) < disburseMinAmount
@@ -101,7 +99,6 @@ export class CustomerBalanceHistoryRepository extends Repository<CustomerBalance
             : Number(eligibleBalance.balance),
         disbursement_inprocess: Math.abs(Number(disbursementInProcess.balance)),
       };
-      return balances;
     } catch (err) {
       console.error(err);
       throw err;

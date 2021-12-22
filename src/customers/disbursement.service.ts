@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import moment from 'moment';
 import { CommonService } from 'src/common/common.service';
 import { NatsService } from 'src/common/nats/nats.service';
 import { ResponseService } from 'src/response/response.service';
@@ -84,6 +85,23 @@ export class DisbursementService {
       // Get Customer Phone
       const urlCustomer = `${process.env.BASEURL_CUSTOMERS_SERVICE}/api/v1/internal/customers/${customer_id}`;
       const customer: any = await this.commonService.getHttp(urlCustomer);
+
+      if (customer.phone_verified_at != null) {
+        const pvaPermissionDate = moment(customer.phone_verified_at).add(
+          1,
+          'days',
+        );
+        const skg = moment(new Date());
+        if (pvaPermissionDate > skg) {
+          flagThrowpass = true;
+          throw await this.responseService.httpExceptionHandling(
+            customer.phone,
+            'phone',
+            'general.general.unverifiedPhone',
+            400,
+          );
+        }
+      }
 
       flagThrowpass = true;
       try {
@@ -171,14 +189,21 @@ export class DisbursementService {
       const urlCustomer = `${process.env.BASEURL_CUSTOMERS_SERVICE}/api/v1/internal/customers/${customer_id}`;
       const customer: any = await this.commonService.getHttp(urlCustomer);
 
-      if (customer.phone_verified_at === null) {
-        flagThrowpass = true;
-        throw await this.responseService.httpExceptionHandling(
-          customer.phone,
-          'phone',
-          'general.general.unverifiedPhone',
-          400,
+      if (customer.phone_verified_at != null) {
+        const pvaPermissionDate = moment(customer.phone_verified_at).add(
+          1,
+          'days',
         );
+        const skg = moment();
+        if (pvaPermissionDate > skg) {
+          flagThrowpass = true;
+          throw await this.responseService.httpExceptionHandling(
+            customer.phone,
+            'phone',
+            'general.general.unverifiedPhone',
+            400,
+          );
+        }
       }
 
       try {
