@@ -15,7 +15,7 @@ export class SettingsDocument {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   value: string;
 
   @CreateDateColumn({ type: 'timestamptz' })

@@ -13,11 +13,11 @@ export const settings: { name: string; value: string }[] = [
   },
   {
     name: 'automatic_disburse_day',
-    value: '',
+    value: null,
   },
   {
     name: 'automatic_disburse_date',
-    value: '',
+    value: null,
   },
   {
     name: 'automatic_disburse_time',
