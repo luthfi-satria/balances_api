@@ -40,9 +40,13 @@ export class BalancesService {
         customerBalanceHistory.status = eventStatus
           ? TransactionStatus.SUCCESS
           : TransactionStatus.FAILED;
+        const saveCustomerBalanceHistory =
+          await this.customersService.saveCustomerBalanceHistory(
+            customerBalanceHistory,
+          );
 
         const disbursementData: Partial<CustomerDisbursementHistoryDocument> = {
-          customer_balance_history: customerBalanceHistory,
+          customer_balance_history: saveCustomerBalanceHistory,
           status: eventStatus
             ? DisbursementTransactionStatus.SUCCESS
             : DisbursementTransactionStatus.FAILED,
@@ -64,9 +68,11 @@ export class BalancesService {
         storeBalanceHistory.status = eventStatus
           ? StoreTransactionStatus.SUCCESS
           : StoreTransactionStatus.FAILED;
+        const saveStoreBalanceHistory =
+          await this.storesService.saveStoreBalanceHistory(storeBalanceHistory);
 
         const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
-          store_balance_history: storeBalanceHistory,
+          store_balance_history: saveStoreBalanceHistory,
           status: eventStatus
             ? StoreDisbursementTransactionStatus.SUCCESS
             : StoreDisbursementTransactionStatus.FAILED,

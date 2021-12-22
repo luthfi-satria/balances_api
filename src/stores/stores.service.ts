@@ -52,6 +52,12 @@ export class StoresService {
     return this.storeBalanceHistoryRepository.findOne({ where: data });
   }
 
+  async saveStoreBalanceHistory(
+    data: Partial<StoreBalanceHistoryDocument>,
+  ): Promise<StoreBalanceHistoryDocument> {
+    return this.storeBalanceHistoryRepository.save(data);
+  }
+
   async saveStoreDisbursementHistory(
     data: Partial<StoreDisbursementHistoryDocument>,
   ): Promise<StoreDisbursementHistoryDocument> {
