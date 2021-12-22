@@ -10,6 +10,7 @@ import { CustomersModule } from './customers/customers.module';
 import { AuthModule } from './auth/auth.module';
 import { SettingsModule } from './settings/settings.module';
 import { SeederModule } from './database/seeders/seeder.module';
+import { StoresModule } from './stores/stores.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -22,6 +23,7 @@ import { SeederModule } from './database/seeders/seeder.module';
     AuthModule,
     SettingsModule,
     SeederModule,
+    StoresModule,
   ],
   controllers: [AppController],
   providers: [AppService],

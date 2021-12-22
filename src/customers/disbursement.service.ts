@@ -280,6 +280,6 @@ export class DisbursementService {
   async saveCustomerDisbursementHistory(
     data: Partial<CustomerDisbursementHistoryDocument>,
   ): Promise<CustomerDisbursementHistoryDocument> {
-    return await this.customerDisbursementHistoryRepository.save(data);
+    return this.customerDisbursementHistoryRepository.save(data);
   }
 }

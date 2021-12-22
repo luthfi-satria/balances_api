@@ -2,6 +2,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { BalancesService } from 'src/balances/balances.service';
 import { CustomersService } from 'src/customers/customers.service';
+import { StoresService } from 'src/stores/stores.service';
 
 @Controller('nats')
 export class NatsController {
@@ -10,6 +11,7 @@ export class NatsController {
   constructor(
     private readonly customersService: CustomersService,
     private readonly balancesService: BalancesService,
+    private readonly storesService: StoresService,
   ) {}
 
   @EventPattern('orders.order.cancelled_by_customer')
@@ -40,6 +42,12 @@ export class NatsController {
   async orderCancelledByStoreOther(@Payload() data: any) {
     this.logger.log('orders.order.cancelled_by_store.other');
     this.customersService.saveCustomerRefund(data);
+  }
+
+  @EventPattern('orders.order.completed')
+  async orderCompleted(@Payload() data: any) {
+    this.logger.log('orders.order.completed');
+    this.storesService.saveOrderComplete(data);
   }
 
   @EventPattern('payments.disbursement.success')
