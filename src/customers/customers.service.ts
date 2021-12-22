@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import moment from 'moment';
 import {
   CustomerBalanceHistoryDocument,
   TransactionStatus,
@@ -7,6 +8,7 @@ import {
 import { CustomerBalanceHistoryRepository } from 'src/customers/repository/customer_balance_history.repository';
 import { ListResponse } from 'src/response/response.interface';
 import { ResponseService } from 'src/response/response.service';
+import { SettingsService } from 'src/settings/settings.service';
 import { ListCustomersBalancesDto } from './dto/customers_balance.dto';
 
 @Injectable()
@@ -14,12 +16,27 @@ export class CustomersService {
   constructor(
     private readonly customerBalanceHistoryRepository: CustomerBalanceHistoryRepository,
     private readonly responseService: ResponseService,
+    private readonly settingsService: SettingsService,
   ) {}
 
   async saveCustomerRefund(data: any) {
     if (data.platform == 'ONLINE') {
       let totalPayment = 0;
       if (data.total_payment) totalPayment = data.total_payment;
+
+      const eligibleDisbursementAtSetting =
+        await this.settingsService.getSettingsByNames(['eligible_disburse_at']);
+      const eligibleDisbursementAt = eligibleDisbursementAtSetting[0].value;
+      let eligibleAt = null;
+
+      if (eligibleDisbursementAt == 'INSTANTLY') {
+        eligibleAt = data.transaction_date;
+      } else if (eligibleDisbursementAt.substring(0, 7) == 'D_PLUS_') {
+        eligibleAt = moment(data.transaction_date).add(
+          eligibleDisbursementAt.substring(7),
+          'days',
+        );
+      }
 
       const custBalanceHistoryData: Partial<CustomerBalanceHistoryDocument> = {
         order_id: data.id,
@@ -28,7 +45,7 @@ export class CustomersService {
         amount: totalPayment,
         status: TransactionStatus.SUCCESS,
         recorded_at: data.transaction_date,
-        eligible_at: data.transaction_date,
+        eligible_at: eligibleAt,
       };
       this.customerBalanceHistoryRepository.save(custBalanceHistoryData);
     }
@@ -60,8 +77,13 @@ export class CustomersService {
   }
 
   async detailCustomerBalance(customer_id: string): Promise<ListResponse> {
+    const balanceSetting = await this.settingsService.getSettingsByNames([
+      'eligible_disburse_min_amount',
+    ]);
+    const disburseMinAmount = Number(balanceSetting[0].value);
+
     const custBalance = await this.customerBalanceHistoryRepository
-      .detailCustomersBalance(customer_id)
+      .detailCustomersBalance(customer_id, disburseMinAmount)
       .catch(async (err) => {
         console.error(err);
         throw await this.responseService.httpExceptionHandling(

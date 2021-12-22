@@ -3,6 +3,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { CustomerBalanceHistoryRepository } from 'src/customers/repository/customer_balance_history.repository';
 import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
+import { SettingsRepository } from 'src/settings/repository/settings.repository';
+import { SettingsService } from 'src/settings/settings.service';
 import { CustomersController } from './customers.controller';
 import { CustomersService } from './customers.service';
 
@@ -17,6 +19,11 @@ describe('CustomersController', () => {
         ResponseService,
         {
           provide: getRepositoryToken(CustomerBalanceHistoryRepository),
+          useValue: {},
+        },
+        SettingsService,
+        {
+          provide: getRepositoryToken(SettingsRepository),
           useValue: {},
         },
       ],

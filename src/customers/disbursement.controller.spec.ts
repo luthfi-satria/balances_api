@@ -5,6 +5,8 @@ import { CommonService } from 'src/common/common.service';
 import { NatsService } from 'src/common/nats/nats.service';
 import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
+import { SettingsRepository } from 'src/settings/repository/settings.repository';
+import { SettingsService } from 'src/settings/settings.service';
 import { BanksService } from './banks.service';
 import { CustomersService } from './customers.service';
 import { DisbursementController } from './disbursement.controller';
@@ -41,6 +43,11 @@ describe('DisbursementController', () => {
         },
         {
           provide: NatsService,
+          useValue: {},
+        },
+        SettingsService,
+        {
+          provide: getRepositoryToken(SettingsRepository),
           useValue: {},
         },
       ],

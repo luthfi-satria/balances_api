@@ -54,8 +54,11 @@ export class CustomerBalanceHistoryRepository extends Repository<CustomerBalance
     }
   }
 
-  async detailCustomersBalance(customer_id: string): Promise<any> {
-    const qList = this.createQueryBuilder('')
+  async detailCustomersBalance(
+    customer_id: string,
+    disburseMinAmount: number,
+  ): Promise<any> {
+    const qbalance = this.createQueryBuilder('')
       .select('sum(amount)', 'balance')
       .where('customer_id = :cid', {
         cid: customer_id,
@@ -64,8 +67,39 @@ export class CustomerBalanceHistoryRepository extends Repository<CustomerBalance
         stat: [TransactionStatus.SUCCESS, TransactionStatus.INPROCESS],
       });
 
+    const qeligibleBalance = this.createQueryBuilder('')
+      .select('sum(amount)', 'balance')
+      .where('customer_id = :cid', {
+        cid: customer_id,
+      })
+      .andWhere('status IN (:...stat)', {
+        stat: [TransactionStatus.SUCCESS, TransactionStatus.INPROCESS],
+      })
+      .andWhere('eligible_at <= :skg', { skg: new Date() });
+
+    const qdisbursementInProcess = this.createQueryBuilder('')
+      .select('sum(amount)', 'balance')
+      .where('customer_id = :cid', {
+        cid: customer_id,
+      })
+      .andWhere('status = :stat', {
+        stat: TransactionStatus.INPROCESS,
+      });
+
     try {
-      return await qList.getRawOne();
+      const balance: any = await qbalance.getRawOne();
+      const eligibleBalance: any = await qeligibleBalance.getRawOne();
+      const disbursementInProcess: any =
+        await qdisbursementInProcess.getRawOne();
+      const balances = {
+        balance: Number(balance.balance),
+        eligible_balance:
+          Number(eligibleBalance.balance) < disburseMinAmount
+            ? 0
+            : Number(eligibleBalance.balance),
+        disbursement_inprocess: Math.abs(Number(disbursementInProcess.balance)),
+      };
+      return balances;
     } catch (err) {
       console.error(err);
       throw err;

@@ -13,6 +13,8 @@ import { CustomerDisbursementHistoryRepository } from 'src/customers/repository/
 import { CustomerBankRepository } from 'src/customers/repository/customer_bank.repository';
 import { HttpModule } from '@nestjs/axios';
 import { NatsService } from 'src/common/nats/nats.service';
+import { SettingsService } from 'src/settings/settings.service';
+import { SettingsRepository } from 'src/settings/repository/settings.repository';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { NatsService } from 'src/common/nats/nats.service';
       CustomerBalanceHistoryRepository,
       CustomerDisbursementHistoryRepository,
       CustomerBankRepository,
+      SettingsRepository,
     ]),
     HttpModule,
   ],
@@ -33,6 +36,7 @@ import { NatsService } from 'src/common/nats/nats.service';
     BanksService,
     CommonService,
     NatsService,
+    SettingsService,
   ],
 })
 export class BalancesModule {}

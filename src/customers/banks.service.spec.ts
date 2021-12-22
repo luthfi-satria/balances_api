@@ -4,6 +4,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
 import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
+import { SettingsRepository } from 'src/settings/repository/settings.repository';
+import { SettingsService } from 'src/settings/settings.service';
 import { BanksService } from './banks.service';
 import { CustomerBankRepository } from './repository/customer_bank.repository';
 
@@ -22,6 +24,11 @@ describe('BanksService', () => {
         },
         ResponseService,
         CommonService,
+        SettingsService,
+        {
+          provide: getRepositoryToken(SettingsRepository),
+          useValue: {},
+        },
       ],
     }).compile();
 
