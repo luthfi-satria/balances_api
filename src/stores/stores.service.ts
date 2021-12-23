@@ -38,6 +38,8 @@ export class StoresService {
 
     const storeBalanceHistoryData: Partial<StoreBalanceHistoryDocument> = {
       order_id: data.id,
+      group_id: data.group_id,
+      merchant_id: data.merchant_id,
       store_id: data.store_id,
       type: StoreTransactionType.REFUND,
       amount: totalStore,

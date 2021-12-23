@@ -29,6 +29,12 @@ export class StoreBalanceHistoryDocument {
   order_id: string;
 
   @Column()
+  group_id: string;
+
+  @Column()
+  merchant_id: string;
+
+  @Column()
   store_id: string;
 
   @Column({
@@ -68,6 +74,8 @@ export class StoreBalanceHistoryDocument {
     (history) => history.store_balance_history,
   )
   histories: StoreDisbursementHistoryDocument[];
+
+  disbursement_method: any;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date | string;
