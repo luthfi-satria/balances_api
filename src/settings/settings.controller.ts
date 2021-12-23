@@ -17,7 +17,7 @@ export class SettingsController {
   ) {}
 
   @Get()
-  @UserType('admin')
+  @UserType('admin', 'merchant', 'customer')
   @AuthJwtGuard()
   @ResponseStatusCode()
   async getSetting(): Promise<RSuccessMessage> {
@@ -30,7 +30,7 @@ export class SettingsController {
   }
 
   @Put()
-  @UserType('admin', 'merchant', 'customer')
+  @UserType('admin')
   @AuthJwtGuard()
   @ResponseStatusCode()
   async updateSetting(
