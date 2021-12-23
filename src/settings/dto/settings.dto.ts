@@ -1,11 +1,4 @@
-import {
-  IsArray,
-  IsIn,
-  IsNumber,
-  IsOptional,
-  Min,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsIn, IsNumber, IsOptional, Min } from 'class-validator';
 
 export enum EligibleDisburseAtValues {
   INSTANTLY = 'INSTANTLY',
@@ -44,7 +37,6 @@ export class SettingsDto {
 
   @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true })
   automatic_disburse_day: AutomaticDisburseDayValues[];
 
   @IsOptional()
