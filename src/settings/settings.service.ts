@@ -36,6 +36,9 @@ export class SettingsService {
         }
 
         names.push(key);
+        if (Array.isArray(data[key])) {
+          data[key] = JSON.stringify(data[key]);
+        }
         const setting: Partial<SettingsDocument> = {
           name: key,
           value: data[key],
@@ -84,5 +87,41 @@ export class SettingsService {
       where: { name: In(names) },
     });
     return settings;
+  }
+
+  async getSettings(): Promise<SettingsDocument[]> {
+    try {
+      let settings = await this.settingsRepository.find();
+      settings = await Promise.all(
+        settings.map((setting) => {
+          if (
+            [
+              'automatic_disburse_day',
+              'automatic_disburse_date',
+              'automatic_disburse_time',
+            ].includes(setting.name)
+          ) {
+            setting.value = JSON.parse(setting.value);
+          }
+          return setting;
+        }),
+      );
+      return settings;
+    } catch (error) {
+      throw new BadRequestException(
+        this.responseService.error(
+          HttpStatus.BAD_REQUEST,
+          {
+            value: '',
+            property: '',
+            constraint: [
+              this.messageService.get('general.general.failedFetchData'),
+              error.message,
+            ],
+          },
+          'Bad Request',
+        ),
+      );
+    }
   }
 }

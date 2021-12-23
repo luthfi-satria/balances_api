@@ -13,14 +13,14 @@ export const settings: { name: string; value: string }[] = [
   },
   {
     name: 'automatic_disburse_day',
-    value: null,
+    value: '[]',
   },
   {
     name: 'automatic_disburse_date',
-    value: null,
+    value: '[]',
   },
   {
     name: 'automatic_disburse_time',
-    value: '{"00:00"}',
+    value: '["00:00"]',
   },
 ];
