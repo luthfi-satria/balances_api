@@ -32,6 +32,8 @@ export class CustomerBankDocument {
   )
   customer_balance_history: CustomerBalanceHistoryDocument[];
 
+  disbursement_method: any;
+
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date | string;
 
