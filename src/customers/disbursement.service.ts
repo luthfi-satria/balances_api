@@ -236,7 +236,7 @@ export class DisbursementService {
           eligible_at: skg,
           customer_bank: customerBank,
         };
-        const customerBalanceHistory: any =
+        const customerBalanceHistory =
           await this.customersService.saveCustomerBalanceHistory(
             custBalanceData,
           );
@@ -245,7 +245,8 @@ export class DisbursementService {
           customer_balance_history: customerBalanceHistory,
           status: DisbursementTransactionStatus.INPROCESS,
         };
-        customerBalanceHistory.disbursement_method = disbursementMethod;
+        customerBalanceHistory.customer_bank.disbursement_method =
+          disbursementMethod;
 
         //Broadcast
         const eventName = 'balances.disbursement.customer.created';

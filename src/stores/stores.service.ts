@@ -19,8 +19,8 @@ export class StoresService {
   ) {}
 
   async saveOrderComplete(data: any) {
-    let totalPayment = 0;
-    if (data.total_payment) totalPayment = data.total_payment;
+    let totalStore = 0;
+    if (data.total_store) totalStore = data.total_store;
 
     const eligibleDisbursementAtSetting =
       await this.settingsService.getSettingsByNames(['eligible_disburse_at']);
@@ -38,9 +38,11 @@ export class StoresService {
 
     const storeBalanceHistoryData: Partial<StoreBalanceHistoryDocument> = {
       order_id: data.id,
+      group_id: data.group_id,
+      merchant_id: data.merchant_id,
       store_id: data.store_id,
       type: StoreTransactionType.REFUND,
-      amount: totalPayment,
+      amount: totalStore,
       status: StoreTransactionStatus.SUCCESS,
       recorded_at: data.transaction_date,
       eligible_at: eligibleAt,

@@ -115,7 +115,7 @@ export class BanksService {
     bank_id: string,
     customer_id: string,
   ): Promise<any> {
-    const customerBank: any = await this.customerBankRepository
+    const customerBank = await this.customerBankRepository
       .findOne({
         where: { id: bank_id, customer_id: customer_id },
       })
@@ -146,7 +146,7 @@ export class BanksService {
     data: ListCustomersBankDto,
     customer_id: string,
   ): Promise<ListResponse> {
-    const customerBank: any = await this.customerBankRepository
+    const customerBank = await this.customerBankRepository
       .findListCustomersBank(data, customer_id)
       .catch(async (err3) => {
         console.error(err3);
