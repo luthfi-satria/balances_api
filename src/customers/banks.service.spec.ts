@@ -6,6 +6,9 @@ import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
 import { SettingsRepository } from 'src/settings/repository/settings.repository';
 import { SettingsService } from 'src/settings/settings.service';
+import { StoreBalanceHistoryRepository } from 'src/stores/repository/store_balance_history.repository';
+import { StoreDisbursementHistoryRepository } from 'src/stores/repository/store_disbursement_history.repository';
+import { StoresService } from 'src/stores/stores.service';
 import { BanksService } from './banks.service';
 import { CustomerBankRepository } from './repository/customer_bank.repository';
 
@@ -27,6 +30,19 @@ describe('BanksService', () => {
         SettingsService,
         {
           provide: getRepositoryToken(SettingsRepository),
+          useValue: {},
+        },
+        {
+          provide: StoresService,
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(StoreBalanceHistoryRepository),
+          useValue: {},
+        },
+        StoresService,
+        {
+          provide: getRepositoryToken(StoreDisbursementHistoryRepository),
           useValue: {},
         },
       ],
