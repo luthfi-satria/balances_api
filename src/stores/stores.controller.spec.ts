@@ -9,40 +9,42 @@ import { SettingsRepository } from 'src/settings/repository/settings.repository'
 import { SettingsService } from 'src/settings/settings.service';
 import { StoreBalanceHistoryRepository } from './repository/store_balance_history.repository';
 import { StoreDisbursementHistoryRepository } from './repository/store_disbursement_history.repository';
+import { StoresController } from './stores.controller';
 import { StoresService } from './stores.service';
 
-describe('StoresService', () => {
-  let service: StoresService;
+describe('StoresController', () => {
+  let controller: StoresController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      controllers: [StoresController],
       imports: [HttpModule],
       providers: [
+        MessageService,
+        ResponseService,
         StoresService,
         {
           provide: getRepositoryToken(StoreBalanceHistoryRepository),
           useValue: {},
         },
+        SettingsService,
         {
           provide: getRepositoryToken(StoreDisbursementHistoryRepository),
           useValue: {},
         },
-        SettingsService,
+        CommonService,
+        MerchantService,
         {
           provide: getRepositoryToken(SettingsRepository),
           useValue: {},
         },
-        ResponseService,
-        MessageService,
-        CommonService,
-        MerchantService,
       ],
     }).compile();
 
-    service = module.get<StoresService>(StoresService);
+    controller = module.get<StoresController>(StoresController);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(controller).toBeDefined();
   });
 });

@@ -2,6 +2,7 @@ import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
+import { MerchantService } from 'src/common/merchant/merchant.service';
 import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
 import { SettingsRepository } from 'src/settings/repository/settings.repository';
@@ -45,6 +46,7 @@ describe('BanksService', () => {
           provide: getRepositoryToken(StoreDisbursementHistoryRepository),
           useValue: {},
         },
+        MerchantService,
       ],
     }).compile();
 

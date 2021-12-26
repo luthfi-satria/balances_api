@@ -11,6 +11,7 @@ import { StoreDisbursementHistoryDocument } from './store_disbursement_history.e
 
 export enum StoreTransactionType {
   REFUND = 'REFUND',
+  BALANCE = 'BALANCE',
   DISBURSEMENT = 'DISBURSEMENT',
 }
 
@@ -28,10 +29,10 @@ export class StoreBalanceHistoryDocument {
   @Column({ nullable: true })
   order_id: string;
 
-  @Column()
+  @Column({ nullable: true })
   group_id: string;
 
-  @Column()
+  @Column({ nullable: true })
   merchant_id: string;
 
   @Column()
@@ -76,6 +77,7 @@ export class StoreBalanceHistoryDocument {
   histories: StoreDisbursementHistoryDocument[];
 
   disbursement_method: any;
+  store: any;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date | string;

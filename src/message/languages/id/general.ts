@@ -6,6 +6,10 @@ export default {
     },
     empty_token: 'Kode Token tidak ada.',
     invalid_token: 'Kode Token tidak valid.',
+    dataInvalid: {
+      code: 'DATA_INVALID',
+      message: 'Data tidak valid.',
+    },
     dataNotFound: {
       code: 'DATA_NOT_FOUND',
       message: 'Data tidak ditemukan.',
@@ -53,6 +57,10 @@ export default {
     invalidID: {
       code: 'INVALID_ID',
       message: 'ID tidak valid.',
+    },
+    invalidUserAccess: {
+      code: 'UNAUTHORIZED USER',
+      message: 'User tidak mendapatkan akses.',
     },
     invalidUUID: {
       code: 'INVALID_UUID',

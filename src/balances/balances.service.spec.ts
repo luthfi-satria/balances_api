@@ -17,6 +17,7 @@ import { SettingsRepository } from 'src/settings/repository/settings.repository'
 import { StoresService } from 'src/stores/stores.service';
 import { StoreBalanceHistoryRepository } from 'src/stores/repository/store_balance_history.repository';
 import { StoreDisbursementHistoryRepository } from 'src/stores/repository/store_disbursement_history.repository';
+import { MerchantService } from 'src/common/merchant/merchant.service';
 
 describe('BalancesService', () => {
   let service: BalancesService;
@@ -62,6 +63,7 @@ describe('BalancesService', () => {
           provide: getRepositoryToken(StoreDisbursementHistoryRepository),
           useValue: {},
         },
+        MerchantService,
       ],
     }).compile();
 

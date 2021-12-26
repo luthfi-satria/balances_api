@@ -15,6 +15,7 @@ import { StoreBalanceHistoryRepository } from 'src/stores/repository/store_balan
 import { StoreDisbursementHistoryRepository } from 'src/stores/repository/store_disbursement_history.repository';
 import { StoresService } from 'src/stores/stores.service';
 import { CommonService } from '../common.service';
+import { MerchantService } from '../merchant/merchant.service';
 import { NatsController } from './nats.controller';
 import { NatsService } from './nats.service';
 
@@ -62,6 +63,7 @@ describe('NatsController', () => {
           provide: getRepositoryToken(SettingsRepository),
           useValue: {},
         },
+        MerchantService,
       ],
     }).compile();
 
