@@ -30,7 +30,6 @@ export class BalancesService {
     if (data.recipient == 'CUSTOMER') {
       const criteriaData = {
         id: data.balance_id,
-        order_id: data.order_id,
         customer_id: data.user_id,
         type: TransactionType.DISBURSEMENT,
       };
