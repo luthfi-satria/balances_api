@@ -10,7 +10,6 @@ import {
 import { StoreDisbursementHistoryDocument } from './store_disbursement_history.entity';
 
 export enum StoreTransactionType {
-  REFUND = 'REFUND',
   BALANCE = 'BALANCE',
   DISBURSEMENT = 'DISBURSEMENT',
 }
@@ -75,6 +74,15 @@ export class StoreBalanceHistoryDocument {
     (history) => history.store_balance_history,
   )
   histories: StoreDisbursementHistoryDocument[];
+
+  @Column({ nullable: true })
+  notes: string;
+
+  @Column({ nullable: true })
+  created_by: string;
+
+  @Column({ nullable: true })
+  created_by_type: string;
 
   disbursement_method: any;
   store: any;

@@ -4,17 +4,25 @@ import { CommonService } from 'src/common/common.service';
 import { ListResponse } from 'src/response/response.interface';
 import { ResponseService } from 'src/response/response.service';
 import { SettingsService } from 'src/settings/settings.service';
-import { ListStoresBalancesDto, ListStoresDto } from './dto/stores_balance.dto';
+import {
+  ListStoresBalancesDto,
+  ListStoresDto,
+  StoreDisbursementDto,
+} from './dto/stores_balance.dto';
 import {
   StoreBalanceHistoryDocument,
   StoreTransactionStatus,
   StoreTransactionType,
 } from './entities/store_balance_history.entity';
-import { StoreDisbursementHistoryDocument } from './entities/store_disbursement_history.entity';
+import {
+  StoreDisbursementHistoryDocument,
+  StoreDisbursementTransactionStatus,
+} from './entities/store_disbursement_history.entity';
 import { StoreBalanceHistoryRepository } from './repository/store_balance_history.repository';
 import { StoreDisbursementHistoryRepository } from './repository/store_disbursement_history.repository';
 import _ from 'lodash';
 import { MerchantService } from 'src/common/merchant/merchant.service';
+import { NatsService } from 'src/common/nats/nats.service';
 
 @Injectable()
 export class StoresService {
@@ -25,6 +33,7 @@ export class StoresService {
     private readonly responseService: ResponseService,
     private readonly commonService: CommonService,
     private readonly merchantService: MerchantService,
+    private readonly natsService: NatsService,
   ) {}
 
   async saveOrderComplete(data: any) {
@@ -180,7 +189,7 @@ export class StoresService {
     return storeBalance;
   }
 
-  async detailStoreBalance(store_id: string, user: any): Promise<ListResponse> {
+  async detailStoreBalance(store_id: string, user: any): Promise<any> {
     await this.merchantService.merchantValidation(store_id, user);
 
     const balanceSetting = await this.settingsService.getSettingsByNames([
@@ -224,11 +233,12 @@ export class StoresService {
         404,
       );
     }
+
+    const balanceSetting = await this.settingsService.getSettingsByNames([
+      'eligible_disburse_min_amount',
+    ]);
+    const disburseMinAmount = Number(balanceSetting[0].value);
     for (const store of stores.items) {
-      const balanceSetting = await this.settingsService.getSettingsByNames([
-        'eligible_disburse_min_amount',
-      ]);
-      const disburseMinAmount = Number(balanceSetting[0].value);
       const storeBalance = await this.storeBalanceHistoryRepository
         .detailStoreBalance(store.id, disburseMinAmount)
         .catch(async (err) => {
@@ -243,6 +253,111 @@ export class StoresService {
       store.balances = storeBalance;
     }
     return stores;
+  }
+
+  async storeDisbursementValidation(
+    data: StoreDisbursementDto,
+    store_id: string,
+    user: any,
+  ): Promise<any> {
+    const store = await this.merchantService.merchantValidation(store_id, user);
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+    const disbursementMethod: any = await this.commonService.getHttp(url);
+    const balanceSetting = await this.settingsService.getSettingsByNames([
+      'eligible_disburse_min_amount',
+    ]);
+    const disburseMinAmount = Number(balanceSetting[0].value);
+    const storeBalance = await this.storeBalanceHistoryRepository
+      .detailStoreBalance(store_id, disburseMinAmount)
+      .catch(async (err) => {
+        console.error(err);
+        throw await this.responseService.httpExceptionHandling(
+          store_id,
+          'store_id',
+          'general.general.dataNotFound',
+          404,
+        );
+      });
+    if (!storeBalance) {
+      throw await this.responseService.httpExceptionHandling(
+        store_id,
+        'store_id',
+        'general.general.dataNotFound',
+        404,
+      );
+    }
+    const maxBalance = Number(storeBalance.eligible_balance);
+    if (
+      data.amount > maxBalance ||
+      data.amount > disbursementMethod.max_amount
+    ) {
+      throw await this.responseService.httpExceptionHandling(
+        data.amount,
+        'amount',
+        'general.general.overLimit',
+        400,
+      );
+    } else if (data.amount < disbursementMethod.min_amount) {
+      throw await this.responseService.httpExceptionHandling(
+        data.amount,
+        'amount',
+        'general.general.underLimit',
+        400,
+      );
+    }
+
+    const skg = new Date();
+    const storeBalanceData: Partial<StoreBalanceHistoryDocument> = {
+      store_id: store_id,
+      type: StoreTransactionType.DISBURSEMENT,
+      amount: -data.amount,
+      status: StoreTransactionStatus.INPROCESS,
+      recorded_at: skg,
+      eligible_at: skg,
+      group_id: store.merchant.group.id,
+      merchant_id: store.merchant.id,
+      notes: data.notes,
+      created_by: user.id,
+      created_by_type: user.user_type,
+      account_no: store.bank_account_no,
+      account_name: store.bank_account_name,
+      disbursement_method_id: store.bank_id,
+    };
+    const storeBalanceHistory = await this.storeBalanceHistoryRepository.save(
+      storeBalanceData,
+    );
+
+    const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
+      store_balance_history: storeBalanceHistory,
+      status: StoreDisbursementTransactionStatus.INPROCESS,
+    };
+
+    //Broadcast
+    const eventName = 'balances.disbursement.store.created';
+    this.natsService.clientEmit(eventName, storeBalanceHistory);
+
+    await this.storeDisbursementHistory.save(disbursementData);
+    storeBalanceHistory.disbursement_method = disbursementMethod;
+    storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
+    storeBalanceHistory.store = store;
+
+    const arrAccName = storeBalanceHistory.account_name.split(' ');
+    let maskName = '';
+    for (const subName of arrAccName) {
+      maskName += `${subName.substring(0, 1)}${subName
+        .substring(1)
+        .replace(/./g, '*')} `;
+    }
+    storeBalanceHistory.account_name = maskName.substring(
+      0,
+      maskName.length - 1,
+    );
+    storeBalanceHistory.account_no = `${storeBalanceHistory.account_no.substring(
+      0,
+      3,
+    )}${storeBalanceHistory.account_no.substring(3).replace(/./g, '*')}`;
+
+    return storeBalanceHistory;
   }
 
   async findStoreBalanceByCriteria(data: Record<string, any>) {

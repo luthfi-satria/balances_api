@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsIn,
+  IsNotEmpty,
   isNotEmpty,
   IsNumber,
   IsOptional,
@@ -71,4 +72,13 @@ export class ListStoresDto {
   @IsOptional()
   @ValidateIf((o) => isNotEmpty(o))
   store_id: string;
+}
+
+export class StoreDisbursementDto {
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
+
+  @IsOptional()
+  notes: string;
 }

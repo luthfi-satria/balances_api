@@ -11,6 +11,7 @@ import { StoresService } from './stores.service';
 import { StoresController } from './stores.controller';
 import { CommonService } from 'src/common/common.service';
 import { MerchantService } from 'src/common/merchant/merchant.service';
+import { NatsService } from 'src/common/nats/nats.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { MerchantService } from 'src/common/merchant/merchant.service';
     MessageService,
     CommonService,
     MerchantService,
+    NatsService,
   ],
   controllers: [StoresController],
 })

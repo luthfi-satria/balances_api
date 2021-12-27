@@ -1,11 +1,15 @@
-import { Controller, Get, Param, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { AuthJwtGuard } from 'src/auth/auth.decorator';
 import { UserType } from 'src/auth/guard/user-type.decorator';
 import { MessageService } from 'src/message/message.service';
 import { ResponseStatusCode } from 'src/response/response.decorator';
 import { RSuccessMessage } from 'src/response/response.interface';
 import { ResponseService } from 'src/response/response.service';
-import { ListStoresBalancesDto, ListStoresDto } from './dto/stores_balance.dto';
+import {
+  ListStoresBalancesDto,
+  ListStoresDto,
+  StoreDisbursementDto,
+} from './dto/stores_balance.dto';
 import { StoresService } from './stores.service';
 
 @Controller('api/v1/balances')
@@ -82,6 +86,29 @@ export class StoresController {
     @Req() req: any,
   ): Promise<RSuccessMessage> {
     const result = await this.storesService.listStoresBalance(data, req.user);
+    return this.responseService.success(
+      true,
+      this.messageService.get('general.general.success'),
+      result,
+    );
+  }
+
+  @Post('stores/disbursements/:sid')
+  @UserType('admin', 'merchant')
+  @AuthJwtGuard()
+  @ResponseStatusCode()
+  async disbursementStore(
+    @Body() data: StoreDisbursementDto,
+    @Param('sid') store_id: string,
+    @Req() req: any,
+  ): Promise<RSuccessMessage> {
+    console.log('data ', data);
+    console.log('store id ', store_id);
+    const result = await this.storesService.storeDisbursementValidation(
+      data,
+      store_id,
+      req.user,
+    );
     return this.responseService.success(
       true,
       this.messageService.get('general.general.success'),
