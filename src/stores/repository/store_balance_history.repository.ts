@@ -191,13 +191,24 @@ export class StoreBalanceHistoryRepository extends Repository<StoreBalanceHistor
         stat: StoreTransactionStatus.INPROCESS,
       });
 
+    const qincome = this.createQueryBuilder('')
+      .select('sum(amount)', 'balance')
+      .where('store_id = :cid', {
+        cid: store_id,
+      })
+      .andWhere('status = :stat', {
+        stat: StoreTransactionStatus.SUCCESS,
+      });
+
     try {
       const balance: any = await qbalance.getRawOne();
       const eligibleBalance: any = await qeligibleBalance.getRawOne();
       const disbursementInProcess: any =
         await qdisbursementInProcess.getRawOne();
+      const income: any = await qincome.getRawOne();
       return {
         balance: Number(balance.balance),
+        income: Number(income.balance),
         eligible_balance:
           Number(eligibleBalance.balance) < disburseMinAmount
             ? 0

@@ -102,8 +102,6 @@ export class StoresController {
     @Param('sid') store_id: string,
     @Req() req: any,
   ): Promise<RSuccessMessage> {
-    console.log('data ', data);
-    console.log('store id ', store_id);
     const result = await this.storesService.storeDisbursementValidation(
       data,
       store_id,
