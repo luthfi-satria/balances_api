@@ -4,6 +4,7 @@ import { ListStoresBalancesDto } from '../dto/stores_balance.dto';
 import {
   StoreBalanceHistoryDocument,
   StoreTransactionStatus,
+  StoreTransactionType,
 } from '../entities/store_balance_history.entity';
 
 @EntityRepository(StoreBalanceHistoryDocument)
@@ -196,8 +197,11 @@ export class StoreBalanceHistoryRepository extends Repository<StoreBalanceHistor
       .where('store_id = :cid', {
         cid: store_id,
       })
-      .andWhere('status = :stat', {
+      .where('status = :stat', {
         stat: StoreTransactionStatus.SUCCESS,
+      })
+      .andWhere('type = :tipe', {
+        tipe: StoreTransactionType.BALANCE,
       });
 
     try {
