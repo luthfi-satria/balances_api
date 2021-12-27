@@ -240,6 +240,17 @@ export class StoresService {
         404,
       );
     }
+    if (store.bank_id) {
+      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+      const disbursementMethod = await this.commonService.getHttp(url);
+      if (disbursementMethod) {
+        store.disbursement_method = disbursementMethod;
+      } else {
+        store.disbursement_method = null;
+      }
+    } else {
+      store.disbursement_method = null;
+    }
     return {
       store: store,
       balance: storeBalance,
@@ -266,6 +277,7 @@ export class StoresService {
     ]);
     const disburseMinAmount = Number(balanceSetting[0].value);
     const listItems = [];
+    const listDisbursementMethod = [];
     for (const store of stores.items) {
       await this.maskingAccountNameNumber(store, 'store');
       const storeBalance = await this.storeBalanceHistoryRepository
@@ -279,6 +291,26 @@ export class StoresService {
             404,
           );
         });
+      if (store.bank_id) {
+        const idx = _.findIndex(listDisbursementMethod, function (ix: any) {
+          return ix.id == store.bank_id;
+        });
+        if (idx == -1) {
+          const urlPay = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+          const disbursementMethod = await this.commonService.getHttp(urlPay);
+          if (disbursementMethod) {
+            store.disbursement_method = disbursementMethod;
+            listDisbursementMethod.push(disbursementMethod);
+          } else {
+            store.disbursement_method = null;
+          }
+        } else {
+          store.disbursement_method = listDisbursementMethod[idx];
+        }
+      } else {
+        store.disbursement_method = null;
+      }
+
       const storeAndBalance = {
         store: store,
         balance: storeBalance,
@@ -379,22 +411,6 @@ export class StoresService {
     );
     await this.maskingAccountNameNumber(store, 'store');
     storeBalanceHistory.store = store;
-
-    // const arrAccName = storeBalanceHistory.account_name.split(' ');
-    // let maskName = '';
-    // for (const subName of arrAccName) {
-    //   maskName += `${subName.substring(0, 1)}${subName
-    //     .substring(1)
-    //     .replace(/./g, '*')} `;
-    // }
-    // storeBalanceHistory.account_name = maskName.substring(
-    //   0,
-    //   maskName.length - 1,
-    // );
-    // storeBalanceHistory.account_no = `${storeBalanceHistory.account_no.substring(
-    //   0,
-    //   3,
-    // )}${storeBalanceHistory.account_no.substring(3).replace(/./g, '*')}`;
 
     return storeBalanceHistory;
   }
