@@ -112,6 +112,7 @@ export class StoresService {
       if (idx == -1) {
         const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalance.disbursement_method_id}`;
         const disbursementMethod = await this.commonService.getHttp(url);
+        console.log('disbursementMethod ', disbursementMethod);
         if (disbursementMethod) {
           storeBalance.disbursement_method = disbursementMethod;
           listDisbursementMethod.push(disbursementMethod);
