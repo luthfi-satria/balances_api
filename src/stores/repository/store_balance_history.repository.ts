@@ -197,7 +197,7 @@ export class StoreBalanceHistoryRepository extends Repository<StoreBalanceHistor
       .where('store_id = :cid', {
         cid: store_id,
       })
-      .where('status = :stat', {
+      .andWhere('status = :stat', {
         stat: StoreTransactionStatus.SUCCESS,
       })
       .andWhere('type = :tipe', {
