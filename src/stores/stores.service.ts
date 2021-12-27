@@ -239,6 +239,7 @@ export class StoresService {
       'eligible_disburse_min_amount',
     ]);
     const disburseMinAmount = Number(balanceSetting[0].value);
+    const listItems = [];
     for (const store of stores.items) {
       const storeBalance = await this.storeBalanceHistoryRepository
         .detailStoreBalance(store.id, disburseMinAmount)
@@ -251,8 +252,13 @@ export class StoresService {
             404,
           );
         });
-      store.balances = storeBalance;
+      const storeAndBalance = {
+        store: store,
+        balance: storeBalance,
+      };
+      listItems.push(storeAndBalance);
     }
+    stores.items = listItems;
     return stores;
   }
 
