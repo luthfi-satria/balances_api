@@ -31,7 +31,11 @@ async function bootstrap() {
       streams: [
         {
           name: 'balances',
-          subjects: ['balances.order.*', 'balances.disbursement.customer.*'],
+          subjects: [
+            'balances.order.*',
+            'balances.disbursement.customer.*',
+            'balances.disbursement.store.*',
+          ],
         },
       ],
       consumer: (opt) => {
