@@ -353,20 +353,20 @@ export class StoresService {
       );
     }
     const maxBalance = Number(storeBalance.eligible_balance);
-    if (
-      data.amount > maxBalance ||
-      data.amount > disbursementMethod.max_amount
-    ) {
+    // if (
+    //   data.amount > maxBalance ||
+    //   data.amount > disbursementMethod.max_amount
+    // ) {
+    //   throw await this.responseService.httpExceptionHandling(
+    //     data.amount,
+    //     'amount',
+    //     'general.general.overLimit',
+    //     400,
+    //   );
+    if (maxBalance <= 0) {
       throw await this.responseService.httpExceptionHandling(
-        data.amount,
-        'amount',
-        'general.general.overLimit',
-        400,
-      );
-    } else if (data.amount < disbursementMethod.min_amount) {
-      throw await this.responseService.httpExceptionHandling(
-        data.amount,
-        'amount',
+        maxBalance,
+        'eligible_balance',
         'general.general.underLimit',
         400,
       );
@@ -376,7 +376,7 @@ export class StoresService {
     const storeBalanceData: Partial<StoreBalanceHistoryDocument> = {
       store_id: store_id,
       type: StoreTransactionType.DISBURSEMENT,
-      amount: -data.amount,
+      amount: -maxBalance,
       status: StoreTransactionStatus.INPROCESS,
       recorded_at: skg,
       eligible_at: skg,
