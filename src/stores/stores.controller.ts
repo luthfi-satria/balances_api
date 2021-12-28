@@ -8,6 +8,7 @@ import { ResponseService } from 'src/response/response.service';
 import {
   ListStoresBalancesDto,
   ListStoresDto,
+  StoreDisbursementBulkDto,
   StoreDisbursementDto,
 } from './dto/stores_balance.dto';
 import { StoresService } from './stores.service';
@@ -105,6 +106,25 @@ export class StoresController {
     const result = await this.storesService.storeDisbursementValidation(
       data,
       store_id,
+      req.user,
+    );
+    return this.responseService.success(
+      true,
+      this.messageService.get('general.general.success'),
+      result,
+    );
+  }
+
+  @Post('stores/disbursements')
+  @UserType('admin')
+  @AuthJwtGuard()
+  @ResponseStatusCode()
+  async disbursementStoreBulk(
+    @Body() data: StoreDisbursementBulkDto,
+    @Req() req: any,
+  ): Promise<RSuccessMessage> {
+    const result = await this.storesService.storeDisbursementValidationBulk(
+      data,
       req.user,
     );
     return this.responseService.success(

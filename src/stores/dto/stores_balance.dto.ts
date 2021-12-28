@@ -75,9 +75,14 @@ export class ListStoresDto {
 }
 
 export class StoreDisbursementDto {
-  // @IsNotEmpty()
-  // @IsNumber()
-  // amount: number;
+  @IsOptional()
+  notes: string;
+}
+
+export class StoreDisbursementBulkDto {
+  @IsNotEmpty()
+  @IsArray()
+  store_ids: string[];
 
   @IsOptional()
   notes: string;

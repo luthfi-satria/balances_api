@@ -7,6 +7,7 @@ import { SettingsService } from 'src/settings/settings.service';
 import {
   ListStoresBalancesDto,
   ListStoresDto,
+  StoreDisbursementBulkDto,
   StoreDisbursementDto,
 } from './dto/stores_balance.dto';
 import {
@@ -353,16 +354,6 @@ export class StoresService {
       );
     }
     const maxBalance = Number(storeBalance.eligible_balance);
-    // if (
-    //   data.amount > maxBalance ||
-    //   data.amount > disbursementMethod.max_amount
-    // ) {
-    //   throw await this.responseService.httpExceptionHandling(
-    //     data.amount,
-    //     'amount',
-    //     'general.general.overLimit',
-    //     400,
-    //   );
     if (maxBalance <= 0) {
       throw await this.responseService.httpExceptionHandling(
         maxBalance,
@@ -397,13 +388,13 @@ export class StoresService {
       store_balance_history: storeBalanceHistory,
       status: StoreDisbursementTransactionStatus.INPROCESS,
     };
+    await this.storeDisbursementHistory.save(disbursementData);
 
     //Broadcast
+    storeBalanceHistory.disbursement_method = disbursementMethod;
     const eventName = 'balances.disbursement.store.created';
     this.natsService.clientEmit(eventName, storeBalanceHistory);
 
-    await this.storeDisbursementHistory.save(disbursementData);
-    storeBalanceHistory.disbursement_method = disbursementMethod;
     storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
     await this.maskingAccountNameNumber(
       storeBalanceHistory,
@@ -413,6 +404,107 @@ export class StoresService {
     storeBalanceHistory.store = store;
 
     return storeBalanceHistory;
+  }
+
+  async storeDisbursementValidationBulk(
+    data: StoreDisbursementBulkDto,
+    user: any,
+  ): Promise<any> {
+    const listStores = [];
+
+    for (const store_id of data.store_ids) {
+      const store = await this.merchantService.merchantValidation(
+        store_id,
+        user,
+      );
+      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+      const disbursementMethod: any = await this.commonService.getHttp(url);
+      const balanceSetting = await this.settingsService.getSettingsByNames([
+        'eligible_disburse_min_amount',
+      ]);
+      const disburseMinAmount = Number(balanceSetting[0].value);
+      const storeBalance = await this.storeBalanceHistoryRepository
+        .detailStoreBalance(store_id, disburseMinAmount)
+        .catch(async (err) => {
+          console.error(err);
+          throw await this.responseService.httpExceptionHandling(
+            store_id,
+            'store_id',
+            'general.general.dataNotFound',
+            404,
+          );
+        });
+      if (!storeBalance) {
+        throw await this.responseService.httpExceptionHandling(
+          store_id,
+          'store_id',
+          'general.general.dataNotFound',
+          404,
+        );
+      }
+      const maxBalance = Number(storeBalance.eligible_balance);
+      if (maxBalance <= 0) {
+        throw await this.responseService.httpExceptionHandling(
+          maxBalance,
+          'eligible_balance',
+          'general.general.underLimit',
+          400,
+        );
+      }
+      const listStore = {
+        store_id: store_id,
+        store: store,
+        disbursementMethod: disbursementMethod,
+        maxBalance: maxBalance,
+      };
+      listStores.push(listStore);
+    }
+
+    const listStoreBalances = [];
+    for (const store of listStores) {
+      const skg = new Date();
+      const storeBalanceData: Partial<StoreBalanceHistoryDocument> = {
+        store_id: store.store_id,
+        type: StoreTransactionType.DISBURSEMENT,
+        amount: -store.maxBalance,
+        status: StoreTransactionStatus.INPROCESS,
+        recorded_at: skg,
+        eligible_at: skg,
+        group_id: store.store.merchant.group.id,
+        merchant_id: store.store.merchant.id,
+        notes: data.notes,
+        created_by: user.id,
+        created_by_type: user.user_type,
+        account_no: store.store.bank_account_no,
+        account_name: store.store.bank_account_name,
+        disbursement_method_id: store.store.bank_id,
+      };
+      const storeBalanceHistory = await this.storeBalanceHistoryRepository.save(
+        storeBalanceData,
+      );
+
+      const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
+        store_balance_history: storeBalanceHistory,
+        status: StoreDisbursementTransactionStatus.INPROCESS,
+      };
+      await this.storeDisbursementHistory.save(disbursementData);
+
+      //Broadcast
+      storeBalanceHistory.disbursement_method = store.disbursementMethod;
+      const eventName = 'balances.disbursement.store.created';
+      this.natsService.clientEmit(eventName, storeBalanceHistory);
+
+      storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
+      await this.maskingAccountNameNumber(
+        storeBalanceHistory,
+        'store_balance_history',
+      );
+      await this.maskingAccountNameNumber(store.store, 'store');
+      storeBalanceHistory.store = store.store;
+      listStoreBalances.push(storeBalanceHistory);
+    }
+
+    return listStoreBalances;
   }
 
   async findStoreBalanceByCriteria(data: Record<string, any>) {
