@@ -396,8 +396,9 @@ export class StoresService {
 
     //Broadcast
     storeBalanceHistory.disbursement_method = disbursementMethod;
+    const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
     const eventName = 'balances.disbursement.store.created';
-    this.natsService.clientEmit(eventName, storeBalanceHistory);
+    this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
 
     storeBalanceHistory.store = store;
     storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
@@ -499,8 +500,9 @@ export class StoresService {
 
       //Broadcast
       storeBalanceHistory.disbursement_method = store.disbursementMethod;
+      const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
       const eventName = 'balances.disbursement.store.created';
-      this.natsService.clientEmit(eventName, storeBalanceHistory);
+      this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
 
       storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
       storeBalanceHistory.store = store.store;
