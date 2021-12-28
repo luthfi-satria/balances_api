@@ -72,6 +72,7 @@ export class StoreBalanceHistoryDocument {
   @OneToMany(
     () => StoreDisbursementHistoryDocument,
     (history) => history.store_balance_history,
+    { eager: true },
   )
   histories: StoreDisbursementHistoryDocument[];
 

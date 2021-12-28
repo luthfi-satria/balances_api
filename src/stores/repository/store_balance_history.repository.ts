@@ -21,78 +21,81 @@ export class StoreBalanceHistoryRepository extends Repository<StoreBalanceHistor
     const perPage = data.limit || 10;
     let totalItems = 0;
 
-    const qList = this.createQueryBuilder('');
+    const qList = this.createQueryBuilder('sbh').leftJoinAndSelect(
+      'sbh.histories',
+      'sdh',
+    );
 
     if (user.user_type == 'merchant' && user.level == 'group') {
-      qList.where('group_id = :group', {
+      qList.where('sbh.group_id = :group', {
         group: user.group_id,
       });
       if (data.merchant_id) {
-        qList.andWhere('merchant_id = :merchant', {
+        qList.andWhere('sbh.merchant_id = :merchant', {
           merchant: data.merchant_id,
         });
       }
       if (data.store_id) {
-        qList.andWhere('store_id = :store', {
+        qList.andWhere('sbh.store_id = :store', {
           store: data.store_id,
         });
       }
     } else if (user.user_type == 'merchant' && user.level == 'merchant') {
-      qList.where('merchant_id = :merchant', {
+      qList.where('sbh.merchant_id = :merchant', {
         merchant: user.merchant_id,
       });
       if (data.store_id) {
-        qList.andWhere('store_id = :store', {
+        qList.andWhere('sbh.store_id = :store', {
           store: data.store_id,
         });
       }
     } else if (user.user_type == 'merchant' && user.level == 'store') {
-      qList.where('store_id = :store', {
+      qList.where('sbh.store_id = :store', {
         store: user.store_id,
       });
     } else {
       if (data.group_id) {
-        qList.andWhere('group_id = :group', {
+        qList.andWhere('sbh.group_id = :group', {
           group: data.group_id,
         });
       }
       if (data.merchant_id) {
-        qList.andWhere('merchant_id = :merchant', {
+        qList.andWhere('sbh.merchant_id = :merchant', {
           merchant: data.merchant_id,
         });
       }
       if (data.store_id) {
-        qList.andWhere('store_id = :store', {
+        qList.andWhere('sbh.store_id = :store', {
           store: data.store_id,
         });
       }
     }
 
     if (data.type) {
-      qList.andWhere('type = :type', {
+      qList.andWhere('sbh.type = :type', {
         type: data.type,
       });
     }
 
     if (data.statuses) {
-      qList.andWhere('status in (:...statuses)', {
+      qList.andWhere('sbh.status in (:...statuses)', {
         statuses: data.statuses,
       });
     }
 
     if (data.date_range_start) {
-      qList.andWhere('recorded_at > :start', {
+      qList.andWhere('sbh.recorded_at > :start', {
         start: `${data.date_range_start} 00:00:00`,
       });
     }
     if (data.date_range_end) {
-      qList.andWhere('recorded_at <= :end', {
+      qList.andWhere('sbh.recorded_at <= :end', {
         end: `${data.date_range_end} 23:59:59`,
       });
     }
 
     qList
-      .orderBy('recorded_at', 'DESC')
+      .orderBy('sbh.recorded_at', 'DESC')
       .skip((currentPage - 1) * perPage)
       .take(perPage);
 

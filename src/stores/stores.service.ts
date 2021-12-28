@@ -180,7 +180,7 @@ export class StoresService {
     user: any,
   ): Promise<StoreBalanceHistoryDocument> {
     const storeBalance = await this.storeBalanceHistoryRepository
-      .findOne(store_history_id, user)
+      .findOne(store_history_id)
       .catch(async (err) => {
         console.error(err);
         throw await this.responseService.httpExceptionHandling(
@@ -380,28 +380,32 @@ export class StoresService {
       account_name: store.bank_account_name,
       disbursement_method_id: store.bank_id,
     };
-    const storeBalanceHistory = await this.storeBalanceHistoryRepository.save(
-      storeBalanceData,
-    );
+    const praStoreBalanceHistory =
+      await this.storeBalanceHistoryRepository.save(storeBalanceData);
 
     const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
-      store_balance_history: storeBalanceHistory,
+      store_balance_history: praStoreBalanceHistory,
       status: StoreDisbursementTransactionStatus.INPROCESS,
     };
     await this.storeDisbursementHistory.save(disbursementData);
+
+    const storeBalanceHistory =
+      await this.storeBalanceHistoryRepository.findOne(
+        praStoreBalanceHistory.id,
+      );
 
     //Broadcast
     storeBalanceHistory.disbursement_method = disbursementMethod;
     const eventName = 'balances.disbursement.store.created';
     this.natsService.clientEmit(eventName, storeBalanceHistory);
 
+    storeBalanceHistory.store = store;
     storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
     await this.maskingAccountNameNumber(
       storeBalanceHistory,
       'store_balance_history',
     );
-    await this.maskingAccountNameNumber(store, 'store');
-    storeBalanceHistory.store = store;
+    await this.maskingAccountNameNumber(storeBalanceHistory.store, 'store');
 
     return storeBalanceHistory;
   }
@@ -479,15 +483,19 @@ export class StoresService {
         account_name: store.store.bank_account_name,
         disbursement_method_id: store.store.bank_id,
       };
-      const storeBalanceHistory = await this.storeBalanceHistoryRepository.save(
-        storeBalanceData,
-      );
+      const praStoreBalanceHistory =
+        await this.storeBalanceHistoryRepository.save(storeBalanceData);
 
       const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
-        store_balance_history: storeBalanceHistory,
+        store_balance_history: praStoreBalanceHistory,
         status: StoreDisbursementTransactionStatus.INPROCESS,
       };
       await this.storeDisbursementHistory.save(disbursementData);
+
+      const storeBalanceHistory =
+        await this.storeBalanceHistoryRepository.findOne(
+          praStoreBalanceHistory.id,
+        );
 
       //Broadcast
       storeBalanceHistory.disbursement_method = store.disbursementMethod;
@@ -495,12 +503,12 @@ export class StoresService {
       this.natsService.clientEmit(eventName, storeBalanceHistory);
 
       storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
+      storeBalanceHistory.store = store.store;
       await this.maskingAccountNameNumber(
         storeBalanceHistory,
         'store_balance_history',
       );
-      await this.maskingAccountNameNumber(store.store, 'store');
-      storeBalanceHistory.store = store.store;
+      await this.maskingAccountNameNumber(storeBalanceHistory.store, 'store');
       listStoreBalances.push(storeBalanceHistory);
     }
 

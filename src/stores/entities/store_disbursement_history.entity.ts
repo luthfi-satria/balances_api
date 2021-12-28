@@ -21,9 +21,7 @@ export class StoreDisbursementHistoryDocument {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => StoreBalanceHistoryDocument, {
-    eager: true,
-  })
+  @ManyToOne(() => StoreBalanceHistoryDocument)
   @JoinColumn({
     name: 'store_balance_history_id',
     referencedColumnName: 'id',
