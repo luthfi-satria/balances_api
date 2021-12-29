@@ -10,6 +10,7 @@ import {
 import { StoreDisbursementHistoryDocument } from './store_disbursement_history.entity';
 
 export enum StoreTransactionType {
+  REFUND = 'REFUND',
   BALANCE = 'BALANCE',
   DISBURSEMENT = 'DISBURSEMENT',
 }
@@ -72,6 +73,7 @@ export class StoreBalanceHistoryDocument {
   @OneToMany(
     () => StoreDisbursementHistoryDocument,
     (history) => history.store_balance_history,
+    { eager: true },
   )
   histories: StoreDisbursementHistoryDocument[];
 

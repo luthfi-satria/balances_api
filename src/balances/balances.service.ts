@@ -57,7 +57,6 @@ export class BalancesService {
     } else if (data.recipient == 'BRAND') {
       const criteriaData = {
         id: data.balance_id,
-        order_id: data.order_id,
         store_id: data.user_id,
         type: StoreTransactionType.DISBURSEMENT,
       };

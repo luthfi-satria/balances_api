@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
 import { catchError, map } from 'rxjs/operators';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 
 @Injectable()
@@ -45,8 +45,9 @@ export class CommonService {
       }),
     );
     try {
-      return await lastValueFrom(post_response);
+      return await firstValueFrom(post_response);
     } catch (error) {
+      console.error(error);
       return null;
     }
   }

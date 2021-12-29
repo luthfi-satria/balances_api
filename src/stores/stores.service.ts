@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
 import { CommonService } from 'src/common/common.service';
 import { ListResponse } from 'src/response/response.interface';
@@ -32,6 +32,7 @@ import { AutomaticDisburseAtValues } from 'src/settings/dto/settings.dto';
 
 @Injectable()
 export class StoresService {
+  logger = new Logger();
   constructor(
     private readonly storeBalanceHistoryRepository: StoreBalanceHistoryRepository,
     @Inject(forwardRef(() => SettingsService))
@@ -187,7 +188,7 @@ export class StoresService {
     user: any,
   ): Promise<StoreBalanceHistoryDocument> {
     const storeBalance = await this.storeBalanceHistoryRepository
-      .findOne(store_history_id, user)
+      .findOne(store_history_id)
       .catch(async (err) => {
         console.error(err);
         throw await this.responseService.httpExceptionHandling(
@@ -387,28 +388,33 @@ export class StoresService {
       account_name: store.bank_account_name,
       disbursement_method_id: store.bank_id,
     };
-    const storeBalanceHistory = await this.storeBalanceHistoryRepository.save(
-      storeBalanceData,
-    );
+    const praStoreBalanceHistory =
+      await this.storeBalanceHistoryRepository.save(storeBalanceData);
 
     const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
-      store_balance_history: storeBalanceHistory,
+      store_balance_history: praStoreBalanceHistory,
       status: StoreDisbursementTransactionStatus.INPROCESS,
     };
     await this.storeDisbursementHistory.save(disbursementData);
 
+    const storeBalanceHistory =
+      await this.storeBalanceHistoryRepository.findOne(
+        praStoreBalanceHistory.id,
+      );
+
     //Broadcast
     storeBalanceHistory.disbursement_method = disbursementMethod;
+    const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
     const eventName = 'balances.disbursement.store.created';
-    this.natsService.clientEmit(eventName, storeBalanceHistory);
+    this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
 
+    storeBalanceHistory.store = store;
     storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
     await this.maskingAccountNameNumber(
       storeBalanceHistory,
       'store_balance_history',
     );
-    await this.maskingAccountNameNumber(store, 'store');
-    storeBalanceHistory.store = store;
+    await this.maskingAccountNameNumber(storeBalanceHistory.store, 'store');
 
     return storeBalanceHistory;
   }
@@ -486,28 +492,33 @@ export class StoresService {
         account_name: store.store.bank_account_name,
         disbursement_method_id: store.store.bank_id,
       };
-      const storeBalanceHistory = await this.storeBalanceHistoryRepository.save(
-        storeBalanceData,
-      );
+      const praStoreBalanceHistory =
+        await this.storeBalanceHistoryRepository.save(storeBalanceData);
 
       const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
-        store_balance_history: storeBalanceHistory,
+        store_balance_history: praStoreBalanceHistory,
         status: StoreDisbursementTransactionStatus.INPROCESS,
       };
       await this.storeDisbursementHistory.save(disbursementData);
 
+      const storeBalanceHistory =
+        await this.storeBalanceHistoryRepository.findOne(
+          praStoreBalanceHistory.id,
+        );
+
       //Broadcast
       storeBalanceHistory.disbursement_method = store.disbursementMethod;
+      const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
       const eventName = 'balances.disbursement.store.created';
-      this.natsService.clientEmit(eventName, storeBalanceHistory);
+      this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
 
       storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
+      storeBalanceHistory.store = store.store;
       await this.maskingAccountNameNumber(
         storeBalanceHistory,
         'store_balance_history',
       );
-      await this.maskingAccountNameNumber(store.store, 'store');
-      storeBalanceHistory.store = store.store;
+      await this.maskingAccountNameNumber(storeBalanceHistory.store, 'store');
       listStoreBalances.push(storeBalanceHistory);
     }
 
@@ -606,6 +617,105 @@ export class StoresService {
     }
 
     return crons;
+  }
+
+  async storeDisbursementScheduler(): Promise<any> {
+    const urlStore = `${process.env.BASEURL_MERCHANTS_SERVICE}/api/v1/internal/merchants/stores/by/automatic_refund`;
+    const stores: any = await this.commonService.getHttp(urlStore);
+    this.logger.log(stores.data.length, 'stores length');
+
+    if (stores.data.length > 0) {
+      const listStores = [];
+      for (const store of stores.data) {
+        this.logger.log(store.id, 'store id     ');
+        this.logger.log(store.bank_id, 'bank id      ');
+
+        if (store.bank_id) {
+          const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+          const disbursementMethod: any = await this.commonService.getHttp(url);
+          const balanceSetting = await this.settingsService.getSettingsByNames([
+            'eligible_disburse_min_amount',
+          ]);
+          const disburseMinAmount = Number(balanceSetting[0].value);
+          const storeBalance =
+            await this.storeBalanceHistoryRepository.detailStoreBalance(
+              store.id,
+              disburseMinAmount,
+            );
+          this.logger.log(storeBalance, 'storeBalance ');
+
+          if (storeBalance) {
+            const maxBalance = Number(storeBalance.eligible_balance);
+            if (maxBalance > 0) {
+              const listStore = {
+                store_id: store.id,
+                store: store,
+                disbursementMethod: disbursementMethod,
+                maxBalance: maxBalance,
+              };
+              listStores.push(listStore);
+            }
+          }
+        }
+      }
+      const listStoreBalances = [];
+      if (listStores.length > 0) {
+        for (const store of listStores) {
+          const skg = new Date();
+          const storeBalanceData: Partial<StoreBalanceHistoryDocument> = {
+            store_id: store.store_id,
+            type: StoreTransactionType.DISBURSEMENT,
+            amount: -store.maxBalance,
+            status: StoreTransactionStatus.INPROCESS,
+            recorded_at: skg,
+            eligible_at: skg,
+            group_id: store.store.merchant.group.id,
+            merchant_id: store.store.merchant.id,
+            notes: 'Pencairan Saldo Otomatis',
+            created_by: '',
+            created_by_type: 'system',
+            account_no: store.store.bank_account_no,
+            account_name: store.store.bank_account_name,
+            disbursement_method_id: store.store.bank_id,
+          };
+          const praStoreBalanceHistory =
+            await this.storeBalanceHistoryRepository.save(storeBalanceData);
+
+          const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
+            store_balance_history: praStoreBalanceHistory,
+            status: StoreDisbursementTransactionStatus.INPROCESS,
+          };
+          await this.storeDisbursementHistory.save(disbursementData);
+
+          const storeBalanceHistory =
+            await this.storeBalanceHistoryRepository.findOne(
+              praStoreBalanceHistory.id,
+            );
+
+          //Broadcast
+          storeBalanceHistory.disbursement_method = store.disbursementMethod;
+          const eventStoreBalanceHistory = Object.assign(
+            {},
+            storeBalanceHistory,
+          );
+          const eventName = 'balances.disbursement.store.created';
+          this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
+
+          storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
+          storeBalanceHistory.store = store.store;
+          await this.maskingAccountNameNumber(
+            storeBalanceHistory,
+            'store_balance_history',
+          );
+          await this.maskingAccountNameNumber(
+            storeBalanceHistory.store,
+            'store',
+          );
+          listStoreBalances.push(storeBalanceHistory);
+        }
+      }
+      return listStoreBalances;
+    }
   }
 
   async findStoreBalanceByCriteria(data: Record<string, any>) {
