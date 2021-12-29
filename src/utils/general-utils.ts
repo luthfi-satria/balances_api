@@ -188,3 +188,23 @@ export const removeAllFieldPassword = function removeAllFieldPassword(
 export const getDatetimeID = function getDatetimeID() {
   return momenttz().tz('Asia/Jakarta').format('YYMMDDHHmmss');
 };
+
+export const cronGen = (
+  minute: string,
+  hour: string,
+  dayOfMonth: string,
+  month: string,
+  dayOfWeek: string,
+): string => {
+  minute = minute || null;
+  hour = hour || null;
+  dayOfMonth = dayOfMonth || null;
+  month = month || null;
+  dayOfWeek = dayOfWeek || null;
+
+  if (!minute || !hour || !dayOfMonth || !month || !dayOfWeek) {
+    return null;
+  }
+
+  return `${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek}`;
+};

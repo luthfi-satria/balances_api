@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { CommonService } from 'src/common/common.service';
 import { ListResponse } from 'src/response/response.interface';
@@ -24,17 +24,24 @@ import { StoreDisbursementHistoryRepository } from './repository/store_disbursem
 import _ from 'lodash';
 import { MerchantService } from 'src/common/merchant/merchant.service';
 import { NatsService } from 'src/common/nats/nats.service';
+import { RedisBalanceService } from 'src/common/redis/redis-balance.service';
+import { CreateAutoDisbursementBalanceDto } from 'src/common/redis/dto/redis-balance.dto';
+import { cronGen } from 'src/utils/general-utils';
+import { SettingsDocument } from 'src/settings/entities/settings.entity';
+import { AutomaticDisburseAtValues } from 'src/settings/dto/settings.dto';
 
 @Injectable()
 export class StoresService {
   constructor(
     private readonly storeBalanceHistoryRepository: StoreBalanceHistoryRepository,
+    @Inject(forwardRef(() => SettingsService))
     private readonly settingsService: SettingsService,
     private readonly storeDisbursementHistory: StoreDisbursementHistoryRepository,
     private readonly responseService: ResponseService,
     private readonly commonService: CommonService,
     private readonly merchantService: MerchantService,
     private readonly natsService: NatsService,
+    private readonly redisBalanceService: RedisBalanceService,
   ) {}
 
   async saveOrderComplete(data: any) {
@@ -505,6 +512,100 @@ export class StoresService {
     }
 
     return listStoreBalances;
+  }
+
+  async createAutoDisbursement() {
+    const settings = await this.settingsService.getSettings();
+
+    const crons = this.generateCronsFromSettings(settings);
+    const jobId = 'autoDisbursementBalance';
+
+    //=> clear the cron jobs first
+    await this.redisBalanceService.clearAutoDisbursementBalanceJobs({
+      job_id: jobId,
+    });
+
+    //=> then create new jobs
+    for (const cron of crons) {
+      const payload: CreateAutoDisbursementBalanceDto = {
+        job_id: jobId,
+        repeat: {
+          cron,
+        },
+      };
+      await this.redisBalanceService.createAutoDisbursementBalanceJob(payload);
+    }
+  }
+
+  generateCronsFromSettings(settings: SettingsDocument[]): string[] {
+    let automaticDisburseAt = null;
+    let automaticDisburseDay = null;
+    let automaticDisburseDate = null;
+    let automaticDisburseTime = null;
+    let automaticDisburseMinute = {};
+    let crons = [];
+
+    for (const setting of settings) {
+      switch (setting.name) {
+        case 'automatic_disburse_at':
+          automaticDisburseAt = setting.value;
+          break;
+        case 'automatic_disburse_day':
+          automaticDisburseDay = setting.value;
+          break;
+        case 'automatic_disburse_date':
+          automaticDisburseDate = setting.value;
+          break;
+        case 'automatic_disburse_time':
+          automaticDisburseTime = setting.value;
+          break;
+      }
+    }
+
+    //=> cek automaticDisburseAt
+    if (automaticDisburseAt === AutomaticDisburseAtValues.DAILY) {
+      automaticDisburseDate = '*';
+      automaticDisburseDay = '*';
+    } else if (automaticDisburseAt === AutomaticDisburseAtValues.WEEKLY) {
+      automaticDisburseDate = '*';
+    } else if (automaticDisburseAt === AutomaticDisburseAtValues.DATE) {
+      automaticDisburseDay = '*';
+    }
+
+    //=> cek multiple minute patterns
+    if (automaticDisburseTime && automaticDisburseTime?.length) {
+      for (const time of automaticDisburseTime) {
+        const [hour, minute] = time.split(':');
+        if (automaticDisburseMinute[minute]) {
+          automaticDisburseMinute[minute].push(hour);
+        } else {
+          automaticDisburseMinute[minute] = [hour];
+        }
+      }
+    }
+
+    for (const minute in automaticDisburseMinute) {
+      if (
+        Object.prototype.hasOwnProperty.call(automaticDisburseMinute, minute)
+      ) {
+        const hours: string[] = automaticDisburseMinute[minute];
+        const hoursString = hours.toString();
+
+        const cron = cronGen(
+          minute,
+          hoursString,
+          automaticDisburseDate,
+          '*',
+          automaticDisburseDay,
+        );
+
+        if (cron) {
+          crons.push(cron);
+        }
+      }
+    }
+
+    return crons;
   }
 
   async findStoreBalanceByCriteria(data: Record<string, any>) {

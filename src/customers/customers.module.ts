@@ -16,6 +16,12 @@ import { CustomerDisbursementHistoryRepository } from './repository/customer_dis
 import { NatsService } from 'src/common/nats/nats.service';
 import { SettingsService } from 'src/settings/settings.service';
 import { SettingsRepository } from 'src/settings/repository/settings.repository';
+import { StoresService } from 'src/stores/stores.service';
+import { StoreBalanceHistoryRepository } from 'src/stores/repository/store_balance_history.repository';
+import { StoreDisbursementHistoryRepository } from 'src/stores/repository/store_disbursement_history.repository';
+import { MerchantService } from 'src/common/merchant/merchant.service';
+import { RedisBalanceService } from 'src/common/redis/redis-balance.service';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -24,8 +30,13 @@ import { SettingsRepository } from 'src/settings/repository/settings.repository'
       CustomerBankRepository,
       CustomerDisbursementHistoryRepository,
       SettingsRepository,
+      StoreBalanceHistoryRepository,
+      StoreDisbursementHistoryRepository,
     ]),
     HttpModule,
+    BullModule.registerQueue({
+      name: 'balances',
+    }),
   ],
   providers: [
     CustomersService,
@@ -36,6 +47,9 @@ import { SettingsRepository } from 'src/settings/repository/settings.repository'
     CommonService,
     NatsService,
     SettingsService,
+    StoresService,
+    MerchantService,
+    RedisBalanceService,
   ],
   controllers: [CustomersController, BanksController, DisbursementController],
 })
