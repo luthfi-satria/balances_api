@@ -10,6 +10,7 @@ import {
 import { StoreDisbursementHistoryDocument } from './store_disbursement_history.entity';
 
 export enum StoreTransactionType {
+  REFUND = 'REFUND',
   BALANCE = 'BALANCE',
   DISBURSEMENT = 'DISBURSEMENT',
 }
