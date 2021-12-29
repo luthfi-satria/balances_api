@@ -53,14 +53,12 @@ export class NatsController {
   @EventPattern('payments.disbursement.success')
   async paymentDisbursementSuccess(@Payload() data: any) {
     this.logger.log('payments.disbursement.success');
-    console.log('Payload: ', data);
     this.balancesService.paymentDisbursementStatus(data, true);
   }
 
   @EventPattern('payments.disbursement.failed')
   async paymentDisbursementFailed(@Payload() data: any) {
     this.logger.log('payments.disbursement.failed');
-    console.log('Payload: ', data);
     this.balancesService.paymentDisbursementStatus(data, false);
   }
 }
