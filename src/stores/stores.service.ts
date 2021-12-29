@@ -557,54 +557,61 @@ export class StoresService {
           }
         }
       }
-
       const listStoreBalances = [];
-      for (const store of listStores) {
-        const skg = new Date();
-        const storeBalanceData: Partial<StoreBalanceHistoryDocument> = {
-          store_id: store.store_id,
-          type: StoreTransactionType.DISBURSEMENT,
-          amount: -store.maxBalance,
-          status: StoreTransactionStatus.INPROCESS,
-          recorded_at: skg,
-          eligible_at: skg,
-          group_id: store.store.merchant.group.id,
-          merchant_id: store.store.merchant.id,
-          notes: 'Pencairan Saldo Otomatis',
-          created_by: '',
-          created_by_type: 'system',
-          account_no: store.store.bank_account_no,
-          account_name: store.store.bank_account_name,
-          disbursement_method_id: store.store.bank_id,
-        };
-        const praStoreBalanceHistory =
-          await this.storeBalanceHistoryRepository.save(storeBalanceData);
+      if (listStores.length > 0) {
+        for (const store of listStores) {
+          const skg = new Date();
+          const storeBalanceData: Partial<StoreBalanceHistoryDocument> = {
+            store_id: store.store_id,
+            type: StoreTransactionType.DISBURSEMENT,
+            amount: -store.maxBalance,
+            status: StoreTransactionStatus.INPROCESS,
+            recorded_at: skg,
+            eligible_at: skg,
+            group_id: store.store.merchant.group.id,
+            merchant_id: store.store.merchant.id,
+            notes: 'Pencairan Saldo Otomatis',
+            created_by: '',
+            created_by_type: 'system',
+            account_no: store.store.bank_account_no,
+            account_name: store.store.bank_account_name,
+            disbursement_method_id: store.store.bank_id,
+          };
+          const praStoreBalanceHistory =
+            await this.storeBalanceHistoryRepository.save(storeBalanceData);
 
-        const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
-          store_balance_history: praStoreBalanceHistory,
-          status: StoreDisbursementTransactionStatus.INPROCESS,
-        };
-        await this.storeDisbursementHistory.save(disbursementData);
+          const disbursementData: Partial<StoreDisbursementHistoryDocument> = {
+            store_balance_history: praStoreBalanceHistory,
+            status: StoreDisbursementTransactionStatus.INPROCESS,
+          };
+          await this.storeDisbursementHistory.save(disbursementData);
 
-        const storeBalanceHistory =
-          await this.storeBalanceHistoryRepository.findOne(
-            praStoreBalanceHistory.id,
+          const storeBalanceHistory =
+            await this.storeBalanceHistoryRepository.findOne(
+              praStoreBalanceHistory.id,
+            );
+
+          //Broadcast
+          storeBalanceHistory.disbursement_method = store.disbursementMethod;
+          const eventStoreBalanceHistory = Object.assign(
+            {},
+            storeBalanceHistory,
           );
+          const eventName = 'balances.disbursement.store.created';
+          this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
 
-        //Broadcast
-        storeBalanceHistory.disbursement_method = store.disbursementMethod;
-        const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
-        const eventName = 'balances.disbursement.store.created';
-        this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
-
-        storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
-        storeBalanceHistory.store = store.store;
-        await this.maskingAccountNameNumber(
-          storeBalanceHistory,
-          'store_balance_history',
-        );
-        await this.maskingAccountNameNumber(storeBalanceHistory.store, 'store');
-        listStoreBalances.push(storeBalanceHistory);
+          storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
+          storeBalanceHistory.store = store.store;
+          await this.maskingAccountNameNumber(
+            storeBalanceHistory,
+            'store_balance_history',
+          );
+          await this.maskingAccountNameNumber(
+            storeBalanceHistory.store,
+            'store',
+          );
+          listStoreBalances.push(storeBalanceHistory);
+        }
       }
       return listStoreBalances;
     }
