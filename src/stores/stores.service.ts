@@ -542,6 +542,7 @@ export class StoresService {
         job_id: jobId,
         repeat: {
           cron,
+          tz: 'Asia/Jakarta',
         },
       };
       await this.redisBalanceService.createAutoDisbursementBalanceJob(payload);
