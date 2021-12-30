@@ -9,7 +9,7 @@ export class ClearAutoDisbursementBalanceDto {
 
 export interface RepeatOpts {
   cron: string; // Cron string
-  // tz?: string; // Timezone
+  tz?: string; // Timezone
   // startDate?: Date | string | number; // Start date when the repeat job should start repeating (only with cron).
   // endDate?: Date | string | number; // End date when the repeat job should stop repeating.
   // limit?: number; // Number of times the job should repeat at max.
