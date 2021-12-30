@@ -18,13 +18,20 @@ import { StoresService } from 'src/stores/stores.service';
 import { StoreBalanceHistoryRepository } from 'src/stores/repository/store_balance_history.repository';
 import { StoreDisbursementHistoryRepository } from 'src/stores/repository/store_disbursement_history.repository';
 import { MerchantService } from 'src/common/merchant/merchant.service';
+import { BullModule } from '@nestjs/bull';
+import { RedisBalanceService } from 'src/common/redis/redis-balance.service';
 
 describe('BalancesService', () => {
   let service: BalancesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpModule],
+      imports: [
+        HttpModule,
+        BullModule.registerQueue({
+          name: 'balances',
+        }),
+      ],
       providers: [
         BalancesService,
         {
@@ -64,6 +71,7 @@ describe('BalancesService', () => {
           useValue: {},
         },
         MerchantService,
+        RedisBalanceService,
       ],
     }).compile();
 

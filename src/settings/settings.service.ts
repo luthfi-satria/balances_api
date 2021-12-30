@@ -1,4 +1,10 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { In } from 'typeorm';
 import { SettingsDocument } from './entities/settings.entity';
 import { SettingsRepository } from './repository/settings.repository';
@@ -13,6 +19,7 @@ export class SettingsService {
     private readonly settingsRepository: SettingsRepository,
     private readonly responseService: ResponseService,
     private readonly messageService: MessageService,
+    @Inject(forwardRef(() => StoresService))
     private readonly storesService: StoresService,
   ) {}
 

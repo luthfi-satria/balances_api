@@ -1,22 +1,18 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
-// import { CancellationService } from 'src/cancellation/cancellation.service';
+import { StoresService } from 'src/stores/stores.service';
 
 @Processor('balances')
 export class RedisBalanceProcessor {
-  // constructor() {} // private readonly cancellationService: CancellationService
+  constructor(private readonly storesService: StoresService) {}
   logger = new Logger(RedisBalanceProcessor.name);
 
   @Process('autoDisbursementBalance')
   async handleAutoDisbursementBalance(job: Job) {
     try {
-      this.logger.debug('AUTO DISBURSEMENT JOB EXECUTED. ID: ', job.id);
-      this.logger.debug('AUTO DISBURSEMENT JOB EXECUTED. ID: ', job.data);
-      this.logger.debug('AUTO DISBURSEMENT JOB EXECUTED. ID: ', job.name);
-      // await this.cancellationService.handleAutoDisbursementBalance({
-      //   order_id: job.data.order_id,
-      // });
+      this.logger.debug('AUTO DISBURSEMENT JOB EXECUTED. JOB: ', job.data);
+      await this.storesService.storeDisbursementScheduler();
     } catch (error) {
       this.logger.error(error.message);
     }
