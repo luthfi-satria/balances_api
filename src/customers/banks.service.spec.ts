@@ -1,9 +1,11 @@
 import { HttpModule } from '@nestjs/axios';
+import { BullModule } from '@nestjs/bull';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
 import { MerchantService } from 'src/common/merchant/merchant.service';
 import { NatsService } from 'src/common/nats/nats.service';
+import { RedisBalanceService } from 'src/common/redis/redis-balance.service';
 import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
 import { SettingsRepository } from 'src/settings/repository/settings.repository';
@@ -19,7 +21,12 @@ describe('BanksService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpModule],
+      imports: [
+        HttpModule,
+        BullModule.registerQueue({
+          name: 'balances',
+        }),
+      ],
       providers: [
         BanksService,
         MessageService,
@@ -52,6 +59,7 @@ describe('BanksService', () => {
           provide: NatsService,
           useValue: {},
         },
+        RedisBalanceService,
       ],
     }).compile();
 

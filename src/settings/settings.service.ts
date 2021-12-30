@@ -1,10 +1,17 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { In } from 'typeorm';
 import { SettingsDocument } from './entities/settings.entity';
 import { SettingsRepository } from './repository/settings.repository';
 import _ from 'lodash';
 import { ResponseService } from 'src/response/response.service';
 import { MessageService } from 'src/message/message.service';
+import { StoresService } from 'src/stores/stores.service';
 
 @Injectable()
 export class SettingsService {
@@ -12,6 +19,8 @@ export class SettingsService {
     private readonly settingsRepository: SettingsRepository,
     private readonly responseService: ResponseService,
     private readonly messageService: MessageService,
+    @Inject(forwardRef(() => StoresService))
+    private readonly storesService: StoresService,
   ) {}
 
   async updateSetting(data: any) {
@@ -63,6 +72,9 @@ export class SettingsService {
 
     try {
       const result = await this.settingsRepository.save(settings);
+
+      await this.storesService.createAutoDisbursement();
+
       return result;
     } catch (error) {
       throw new BadRequestException(
