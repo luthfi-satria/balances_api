@@ -46,35 +46,37 @@ export class StoresService {
   ) {}
 
   async saveOrderComplete(data: any) {
-    let totalStore = 0;
-    if (data.total_store) totalStore = data.total_store;
+    if (data.platform == 'ONLINE') {
+      let totalStore = 0;
+      if (data.total_store) totalStore = data.total_store;
 
-    const eligibleDisbursementAtSetting =
-      await this.settingsService.getSettingsByNames(['eligible_disburse_at']);
-    const eligibleDisbursementAt = eligibleDisbursementAtSetting[0].value;
-    let eligibleAt = null;
+      const eligibleDisbursementAtSetting =
+        await this.settingsService.getSettingsByNames(['eligible_disburse_at']);
+      const eligibleDisbursementAt = eligibleDisbursementAtSetting[0].value;
+      let eligibleAt = null;
 
-    if (eligibleDisbursementAt == 'INSTANTLY') {
-      eligibleAt = data.transaction_date;
-    } else if (eligibleDisbursementAt.substring(0, 7) == 'D_PLUS_') {
-      eligibleAt = moment(data.transaction_date).add(
-        eligibleDisbursementAt.substring(7),
-        'days',
-      );
+      if (eligibleDisbursementAt == 'INSTANTLY') {
+        eligibleAt = data.transaction_date;
+      } else if (eligibleDisbursementAt.substring(0, 7) == 'D_PLUS_') {
+        eligibleAt = moment(data.transaction_date).add(
+          eligibleDisbursementAt.substring(7),
+          'days',
+        );
+      }
+
+      const storeBalanceHistoryData: Partial<StoreBalanceHistoryDocument> = {
+        order_id: data.id,
+        group_id: data.group_id,
+        merchant_id: data.merchant_id,
+        store_id: data.store_id,
+        type: StoreTransactionType.BALANCE,
+        amount: totalStore,
+        status: StoreTransactionStatus.SUCCESS,
+        recorded_at: data.transaction_date,
+        eligible_at: eligibleAt,
+      };
+      this.storeBalanceHistoryRepository.save(storeBalanceHistoryData);
     }
-
-    const storeBalanceHistoryData: Partial<StoreBalanceHistoryDocument> = {
-      order_id: data.id,
-      group_id: data.group_id,
-      merchant_id: data.merchant_id,
-      store_id: data.store_id,
-      type: StoreTransactionType.BALANCE,
-      amount: totalStore,
-      status: StoreTransactionStatus.SUCCESS,
-      recorded_at: data.transaction_date,
-      eligible_at: eligibleAt,
-    };
-    this.storeBalanceHistoryRepository.save(storeBalanceHistoryData);
   }
 
   async listStoresBalanceHistories(
@@ -554,8 +556,8 @@ export class StoresService {
     let automaticDisburseDay = null;
     let automaticDisburseDate = null;
     let automaticDisburseTime = null;
-    let automaticDisburseMinute = {};
-    let crons = [];
+    const automaticDisburseMinute = {};
+    const crons = [];
 
     for (const setting of settings) {
       switch (setting.name) {
