@@ -225,7 +225,10 @@ export class StoresService {
   }
 
   async detailStoreBalance(store_id: string, user: any): Promise<any> {
-    const store = await this.merchantService.merchantValidation(store_id, user);
+    let store = null;
+    if (user) {
+      store = await this.merchantService.merchantValidation(store_id, user);
+    }
     await this.maskingAccountNameNumber(store, 'store');
 
     const balanceSetting = await this.settingsService.getSettingsByNames([
@@ -283,6 +286,7 @@ export class StoresService {
         404,
       );
     }
+    console.log('stores: ', stores);
     const balanceSetting = await this.settingsService.getSettingsByNames([
       'eligible_disburse_min_amount',
     ]);
