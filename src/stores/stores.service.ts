@@ -286,7 +286,6 @@ export class StoresService {
         404,
       );
     }
-    console.log('stores: ', stores);
     const balanceSetting = await this.settingsService.getSettingsByNames([
       'eligible_disburse_min_amount',
     ]);

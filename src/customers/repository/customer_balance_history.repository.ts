@@ -54,10 +54,7 @@ export class CustomerBalanceHistoryRepository extends Repository<CustomerBalance
     }
   }
 
-  async detailCustomersBalance(
-    customer_id: string,
-    disburseMinAmount: number,
-  ): Promise<any> {
+  async detailCustomersBalance(customer_id: string): Promise<any> {
     const qbalance = this.createQueryBuilder('')
       .select('sum(amount)', 'balance')
       .where('customer_id = :cid', {
@@ -93,10 +90,7 @@ export class CustomerBalanceHistoryRepository extends Repository<CustomerBalance
         await qdisbursementInProcess.getRawOne();
       return {
         balance: Number(balance.balance),
-        eligible_balance:
-          Number(eligibleBalance.balance) < disburseMinAmount
-            ? 0
-            : Number(eligibleBalance.balance),
+        eligible_balance: Number(eligibleBalance.balance),
         disbursement_inprocess: Math.abs(Number(disbursementInProcess.balance)),
       };
     } catch (err) {

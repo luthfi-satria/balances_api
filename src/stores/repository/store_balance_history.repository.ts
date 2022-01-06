@@ -216,10 +216,9 @@ export class StoreBalanceHistoryRepository extends Repository<StoreBalanceHistor
       return {
         balance: Number(balance.balance),
         income: Number(income.balance),
-        eligible_balance:
-          Number(eligibleBalance.balance) < disburseMinAmount
-            ? 0
-            : Number(eligibleBalance.balance),
+        eligible_balance: Number(eligibleBalance.balance),
+        is_disbursable:
+          Number(eligibleBalance.balance) < disburseMinAmount ? false : true,
         disbursement_inprocess: Math.abs(Number(disbursementInProcess.balance)),
       };
     } catch (err) {
