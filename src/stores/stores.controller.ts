@@ -94,6 +94,17 @@ export class StoresController {
     );
   }
 
+  @Get('stores/disbursements/scheduler')
+  @ResponseStatusCode()
+  async listStoreBalanceScheduler(): Promise<RSuccessMessage> {
+    const result = await this.storesService.storeDisbursementScheduler();
+    return this.responseService.success(
+      true,
+      this.messageService.get('general.general.success'),
+      result,
+    );
+  }
+
   @Post('stores/disbursements/:sid')
   @UserType('admin', 'merchant')
   @AuthJwtGuard()

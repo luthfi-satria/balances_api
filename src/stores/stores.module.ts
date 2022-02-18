@@ -1,5 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MessageService } from 'src/message/message.service';
 import { ResponseService } from 'src/response/response.service';
@@ -12,6 +12,9 @@ import { StoresController } from './stores.controller';
 import { CommonService } from 'src/common/common.service';
 import { MerchantService } from 'src/common/merchant/merchant.service';
 import { NatsService } from 'src/common/nats/nats.service';
+import { RedisBalanceService } from 'src/common/redis/redis-balance.service';
+import { BullModule } from '@nestjs/bull';
+import { StoreBootstrap } from './store-bootstrap.service';
 
 @Module({
   imports: [
@@ -21,8 +24,12 @@ import { NatsService } from 'src/common/nats/nats.service';
       SettingsRepository,
     ]),
     HttpModule,
+    BullModule.registerQueue({
+      name: 'balances',
+    }),
   ],
   providers: [
+    Logger,
     StoresService,
     SettingsService,
     ResponseService,
@@ -30,6 +37,8 @@ import { NatsService } from 'src/common/nats/nats.service';
     CommonService,
     MerchantService,
     NatsService,
+    RedisBalanceService,
+    StoreBootstrap,
   ],
   controllers: [StoresController],
 })

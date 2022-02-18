@@ -44,6 +44,12 @@ export class NatsController {
     this.customersService.saveCustomerRefund(data);
   }
 
+  @EventPattern('orders.order.cancelled_by_system')
+  async orderCancelledBySystem(@Payload() data: any) {
+    this.logger.log('orders.order.cancelled_by_system');
+    this.customersService.saveCustomerRefund(data);
+  }
+
   @EventPattern('orders.order.completed')
   async orderCompleted(@Payload() data: any) {
     this.logger.log('orders.order.completed');
@@ -53,14 +59,12 @@ export class NatsController {
   @EventPattern('payments.disbursement.success')
   async paymentDisbursementSuccess(@Payload() data: any) {
     this.logger.log('payments.disbursement.success');
-    console.log('Payload: ', data);
     this.balancesService.paymentDisbursementStatus(data, true);
   }
 
   @EventPattern('payments.disbursement.failed')
   async paymentDisbursementFailed(@Payload() data: any) {
     this.logger.log('payments.disbursement.failed');
-    console.log('Payload: ', data);
     this.balancesService.paymentDisbursementStatus(data, false);
   }
 }

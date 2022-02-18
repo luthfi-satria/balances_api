@@ -77,12 +77,8 @@ export class CustomersService {
   }
 
   async detailCustomerBalance(customer_id: string): Promise<ListResponse> {
-    const balanceSetting = await this.settingsService.getSettingsByNames([
-      'eligible_disburse_min_amount',
-    ]);
-    const disburseMinAmount = Number(balanceSetting[0].value);
     const custBalance = await this.customerBalanceHistoryRepository
-      .detailCustomersBalance(customer_id, disburseMinAmount)
+      .detailCustomersBalance(customer_id)
       .catch(async (err) => {
         console.error(err);
         throw await this.responseService.httpExceptionHandling(
