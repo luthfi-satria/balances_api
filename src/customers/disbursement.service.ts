@@ -110,6 +110,7 @@ export class DisbursementService {
         const body = {
           phone: customer.phone,
           user_type: 'customer_disbursement',
+          name: customer.name,
         };
         const auth: any = await this.commonService.postHttp(urlOtp, body);
 
