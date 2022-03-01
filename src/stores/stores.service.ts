@@ -341,7 +341,7 @@ export class StoresService {
     user: any,
   ): Promise<any> {
     const store = await this.merchantService.merchantValidation(store_id, user);
-    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.disbursement_method_id}`;
     const disbursementMethod: any = await this.commonService.getHttp(url);
     const balanceSetting = await this.settingsService.getSettingsByNames([
       'eligible_disburse_min_amount',
@@ -435,7 +435,7 @@ export class StoresService {
         store_id,
         user,
       );
-      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.disbursement_method_id}`;
       const disbursementMethod: any = await this.commonService.getHttp(url);
       const balanceSetting = await this.settingsService.getSettingsByNames([
         'eligible_disburse_min_amount',
@@ -637,7 +637,7 @@ export class StoresService {
         this.logger.log(store.bank_id, 'bank id      ');
 
         if (store.bank_id) {
-          const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+          const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.disbursement_method_id}`;
           const disbursementMethod: any = await this.commonService.getHttp(url);
           const balanceSetting = await this.settingsService.getSettingsByNames([
             'eligible_disburse_min_amount',
