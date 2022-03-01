@@ -404,14 +404,26 @@ export class StoresService {
       await this.storeBalanceHistoryRepository.findOne(
         praStoreBalanceHistory.id,
       );
+    console.log(
+      storeBalanceHistory,
+      '=> stores.service.storeDisbursementValidationBulk > storeBalanceHistory',
+    );
 
     const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalanceHistory?.disbursement_method_id}`;
     const disbursementMethod: any = await this.commonService.getHttp(url);
+    console.log(
+      disbursementMethod,
+      '=> stores.service.storeDisbursementValidationBulk > disbursementMethod',
+    );
 
     //Broadcast
     storeBalanceHistory.disbursement_method = disbursementMethod;
     const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
     const eventName = 'balances.disbursement.store.created';
+    console.log(
+      eventStoreBalanceHistory,
+      '=> stores.service.storeDisbursementValidationBulk > eventStoreBalanceHistory',
+    );
     this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
 
     storeBalanceHistory.store = store;
@@ -510,6 +522,10 @@ export class StoresService {
         await this.storeBalanceHistoryRepository.findOne(
           praStoreBalanceHistory.id,
         );
+      console.log(
+        storeBalanceHistory,
+        '=> stores.service.storeDisbursementValidationBulk > storeBalanceHistory',
+      );
 
       if (
         !disbursementMethodIndex[storeBalanceHistory?.disbursement_method_id] &&
@@ -517,6 +533,10 @@ export class StoresService {
       ) {
         const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalanceHistory?.disbursement_method_id}`;
         const disbursementMethod: any = await this.commonService.getHttp(url);
+        console.log(
+          disbursementMethod,
+          '=> stores.service.storeDisbursementValidationBulk > disbursementMethod',
+        );
         disbursementMethodIndex[storeBalanceHistory.disbursement_method_id] =
           disbursementMethod;
       }
@@ -526,6 +546,10 @@ export class StoresService {
         disbursementMethodIndex[storeBalanceHistory?.disbursement_method_id];
       const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
       const eventName = 'balances.disbursement.store.created';
+      console.log(
+        eventStoreBalanceHistory,
+        '=> stores.service.storeDisbursementValidationBulk > eventStoreBalanceHistory',
+      );
       this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
 
       storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
@@ -708,6 +732,10 @@ export class StoresService {
             await this.storeBalanceHistoryRepository.findOne(
               praStoreBalanceHistory.id,
             );
+          console.log(
+            storeBalanceHistory,
+            '=> stores.service.storeDisbursementValidationBulk > storeBalanceHistory',
+          );
 
           if (
             !disbursementMethodIndex[
@@ -719,6 +747,11 @@ export class StoresService {
             const disbursementMethod: any = await this.commonService.getHttp(
               url,
             );
+            console.log(
+              disbursementMethod,
+              '=> stores.service.storeDisbursementValidationBulk > disbursementMethod',
+            );
+
             disbursementMethodIndex[
               storeBalanceHistory.disbursement_method_id
             ] = disbursementMethod;
@@ -734,6 +767,10 @@ export class StoresService {
             storeBalanceHistory,
           );
           const eventName = 'balances.disbursement.store.created';
+          console.log(
+            eventStoreBalanceHistory,
+            '=> stores.service.storeDisbursementValidationBulk > eventStoreBalanceHistory',
+          );
           this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
 
           storeBalanceHistory.amount = Math.abs(storeBalanceHistory.amount);
