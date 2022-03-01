@@ -341,8 +341,6 @@ export class StoresService {
     user: any,
   ): Promise<any> {
     const store = await this.merchantService.merchantValidation(store_id, user);
-    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.disbursement_method_id}`;
-    const disbursementMethod: any = await this.commonService.getHttp(url);
     const balanceSetting = await this.settingsService.getSettingsByNames([
       'eligible_disburse_min_amount',
     ]);
@@ -407,6 +405,9 @@ export class StoresService {
         praStoreBalanceHistory.id,
       );
 
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalanceHistory?.disbursement_method_id}`;
+    const disbursementMethod: any = await this.commonService.getHttp(url);
+
     //Broadcast
     storeBalanceHistory.disbursement_method = disbursementMethod;
     const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
@@ -429,14 +430,13 @@ export class StoresService {
     user: any,
   ): Promise<any> {
     const listStores = [];
+    const disbursementMethodIndex = {};
 
     for (const store_id of data.store_ids) {
       const store = await this.merchantService.merchantValidation(
         store_id,
         user,
       );
-      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.disbursement_method_id}`;
-      const disbursementMethod: any = await this.commonService.getHttp(url);
       const balanceSetting = await this.settingsService.getSettingsByNames([
         'eligible_disburse_min_amount',
       ]);
@@ -472,7 +472,7 @@ export class StoresService {
       const listStore = {
         store_id: store_id,
         store: store,
-        disbursementMethod: disbursementMethod,
+        disbursementMethod: null,
         maxBalance: maxBalance,
       };
       listStores.push(listStore);
@@ -511,8 +511,19 @@ export class StoresService {
           praStoreBalanceHistory.id,
         );
 
+      if (
+        !disbursementMethodIndex[storeBalanceHistory?.disbursement_method_id] &&
+        storeBalanceHistory?.disbursement_method_id
+      ) {
+        const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalanceHistory?.disbursement_method_id}`;
+        const disbursementMethod: any = await this.commonService.getHttp(url);
+        disbursementMethodIndex[storeBalanceHistory.disbursement_method_id] =
+          disbursementMethod;
+      }
+
       //Broadcast
-      storeBalanceHistory.disbursement_method = store.disbursementMethod;
+      storeBalanceHistory.disbursement_method =
+        disbursementMethodIndex[storeBalanceHistory?.disbursement_method_id];
       const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
       const eventName = 'balances.disbursement.store.created';
       this.natsService.clientEmit(eventName, eventStoreBalanceHistory);
@@ -630,6 +641,8 @@ export class StoresService {
     const stores: any = await this.commonService.getHttp(urlStore);
     this.logger.log(stores.data.length, 'stores length');
 
+    const disbursementMethodIndex = {};
+
     if (stores.data.length > 0) {
       const listStores = [];
       for (const store of stores.data) {
@@ -637,8 +650,6 @@ export class StoresService {
         this.logger.log(store.bank_id, 'bank id      ');
 
         if (store.bank_id) {
-          const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.disbursement_method_id}`;
-          const disbursementMethod: any = await this.commonService.getHttp(url);
           const balanceSetting = await this.settingsService.getSettingsByNames([
             'eligible_disburse_min_amount',
           ]);
@@ -656,7 +667,7 @@ export class StoresService {
               const listStore = {
                 store_id: store.id,
                 store: store,
-                disbursementMethod: disbursementMethod,
+                disbursementMethod: null,
                 maxBalance: maxBalance,
               };
               listStores.push(listStore);
@@ -698,8 +709,26 @@ export class StoresService {
               praStoreBalanceHistory.id,
             );
 
+          if (
+            !disbursementMethodIndex[
+              storeBalanceHistory?.disbursement_method_id
+            ] &&
+            storeBalanceHistory?.disbursement_method_id
+          ) {
+            const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalanceHistory?.disbursement_method_id}`;
+            const disbursementMethod: any = await this.commonService.getHttp(
+              url,
+            );
+            disbursementMethodIndex[
+              storeBalanceHistory.disbursement_method_id
+            ] = disbursementMethod;
+          }
+
           //Broadcast
-          storeBalanceHistory.disbursement_method = store.disbursementMethod;
+          storeBalanceHistory.disbursement_method =
+            disbursementMethodIndex[
+              storeBalanceHistory?.disbursement_method_id
+            ];
           const eventStoreBalanceHistory = Object.assign(
             {},
             storeBalanceHistory,
