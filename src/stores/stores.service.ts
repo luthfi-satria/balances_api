@@ -342,6 +342,13 @@ export class StoresService {
   ): Promise<any> {
     const store = await this.merchantService.merchantValidation(store_id, user);
     console.log(store, '=> stores.service.storeDisbursementValidation > store');
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+    console.log(url, '=> stores.service.storeDisbursementValidation > url');
+    const disbursementMethod: any = await this.commonService.getHttp(url);
+    console.log(
+      disbursementMethod,
+      '=> stores.service.storeDisbursementValidation > disbursementMethod',
+    );
     const balanceSetting = await this.settingsService.getSettingsByNames([
       'eligible_disburse_min_amount',
     ]);
@@ -410,14 +417,6 @@ export class StoresService {
       '=> stores.service.storeDisbursementValidation > storeBalanceHistory',
     );
 
-    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalanceHistory?.disbursement_method_id}`;
-    console.log(url, '=> stores.service.storeDisbursementValidation > url');
-    const disbursementMethod: any = await this.commonService.getHttp(url);
-    console.log(
-      disbursementMethod,
-      '=> stores.service.storeDisbursementValidation > disbursementMethod',
-    );
-
     //Broadcast
     storeBalanceHistory.disbursement_method = disbursementMethod;
     const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
@@ -455,6 +454,17 @@ export class StoresService {
         store,
         '=> stores.service.storeDisbursementValidationBulk > store',
       );
+      if (!disbursementMethodIndex[store.bank_id]) {
+        const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+        console.log(url, '=> stores.service.storeDisbursementScheduler > url');
+        const disbursementMethod: any = await this.commonService.getHttp(url);
+        console.log(
+          disbursementMethod,
+          '=> stores.service.storeDisbursementScheduler > disbursementMethod',
+        );
+
+        disbursementMethodIndex[store.bank_id] = disbursementMethod;
+      }
       const balanceSetting = await this.settingsService.getSettingsByNames([
         'eligible_disburse_min_amount',
       ]);
@@ -490,7 +500,7 @@ export class StoresService {
       const listStore = {
         store_id: store_id,
         store: store,
-        disbursementMethod: null,
+        disbursementMethod: disbursementMethodIndex[store.bank_id],
         maxBalance: maxBalance,
       };
       listStores.push(listStore);
@@ -533,27 +543,8 @@ export class StoresService {
         '=> stores.service.storeDisbursementValidationBulk > storeBalanceHistory',
       );
 
-      if (
-        !disbursementMethodIndex[storeBalanceHistory?.disbursement_method_id] &&
-        storeBalanceHistory?.disbursement_method_id
-      ) {
-        const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalanceHistory?.disbursement_method_id}`;
-        console.log(
-          url,
-          '=> stores.service.storeDisbursementValidationBulk > url',
-        );
-        const disbursementMethod: any = await this.commonService.getHttp(url);
-        console.log(
-          disbursementMethod,
-          '=> stores.service.storeDisbursementValidationBulk > disbursementMethod',
-        );
-        disbursementMethodIndex[storeBalanceHistory.disbursement_method_id] =
-          disbursementMethod;
-      }
-
       //Broadcast
-      storeBalanceHistory.disbursement_method =
-        disbursementMethodIndex[storeBalanceHistory?.disbursement_method_id];
+      storeBalanceHistory.disbursement_method = store.disbursementMethod;
       const eventStoreBalanceHistory = Object.assign({}, storeBalanceHistory);
       const eventName = 'balances.disbursement.store.created';
       console.log(
@@ -687,6 +678,22 @@ export class StoresService {
           '=> stores.service.storeDisbursementScheduler > store',
         );
         if (store.bank_id) {
+          if (!disbursementMethodIndex[store.bank_id]) {
+            const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+            console.log(
+              url,
+              '=> stores.service.storeDisbursementScheduler > url',
+            );
+            const disbursementMethod: any = await this.commonService.getHttp(
+              url,
+            );
+            console.log(
+              disbursementMethod,
+              '=> stores.service.storeDisbursementScheduler > disbursementMethod',
+            );
+
+            disbursementMethodIndex[store.bank_id] = disbursementMethod;
+          }
           const balanceSetting = await this.settingsService.getSettingsByNames([
             'eligible_disburse_min_amount',
           ]);
@@ -704,7 +711,7 @@ export class StoresService {
               const listStore = {
                 store_id: store.id,
                 store: store,
-                disbursementMethod: null,
+                disbursementMethod: disbursementMethodIndex[store.bank_id],
                 maxBalance: maxBalance,
               };
               listStores.push(listStore);
@@ -750,35 +757,8 @@ export class StoresService {
             '=> stores.service.storeDisbursementScheduler > storeBalanceHistory',
           );
 
-          if (
-            !disbursementMethodIndex[
-              storeBalanceHistory?.disbursement_method_id
-            ] &&
-            storeBalanceHistory?.disbursement_method_id
-          ) {
-            const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalanceHistory?.disbursement_method_id}`;
-            console.log(
-              url,
-              '=> stores.service.storeDisbursementScheduler > url',
-            );
-            const disbursementMethod: any = await this.commonService.getHttp(
-              url,
-            );
-            console.log(
-              disbursementMethod,
-              '=> stores.service.storeDisbursementScheduler > disbursementMethod',
-            );
-
-            disbursementMethodIndex[
-              storeBalanceHistory.disbursement_method_id
-            ] = disbursementMethod;
-          }
-
           //Broadcast
-          storeBalanceHistory.disbursement_method =
-            disbursementMethodIndex[
-              storeBalanceHistory?.disbursement_method_id
-            ];
+          storeBalanceHistory.disbursement_method = store.disbursementMethod;
           const eventStoreBalanceHistory = Object.assign(
             {},
             storeBalanceHistory,
