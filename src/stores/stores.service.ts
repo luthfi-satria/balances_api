@@ -341,6 +341,7 @@ export class StoresService {
     user: any,
   ): Promise<any> {
     const store = await this.merchantService.merchantValidation(store_id, user);
+    console.log(store, '=> stores.service.storeDisbursementValidation > store');
     const balanceSetting = await this.settingsService.getSettingsByNames([
       'eligible_disburse_min_amount',
     ]);
@@ -449,6 +450,10 @@ export class StoresService {
       const store = await this.merchantService.merchantValidation(
         store_id,
         user,
+      );
+      console.log(
+        store,
+        '=> stores.service.storeDisbursementValidationBulk > store',
       );
       const balanceSetting = await this.settingsService.getSettingsByNames([
         'eligible_disburse_min_amount',
@@ -677,7 +682,10 @@ export class StoresService {
       for (const store of stores.data) {
         this.logger.log(store.id, 'store id     ');
         this.logger.log(store.bank_id, 'bank id      ');
-
+        console.log(
+          store,
+          '=> stores.service.storeDisbursementScheduler > store',
+        );
         if (store.bank_id) {
           const balanceSetting = await this.settingsService.getSettingsByNames([
             'eligible_disburse_min_amount',
