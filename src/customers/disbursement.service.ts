@@ -56,7 +56,8 @@ export class DisbursementService {
     }
 
     const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${customerBank.disbursement_method_id}`;
-    const disbursementMethod: any = await this.commonService.getHttp(url);
+    const disbursementMethod: any =
+      await this.commonService.getDetailStoreBalance(url);
     const customerBalance: any =
       await this.customersService.detailCustomerBalance(customer_id);
     const maxBalance = customerBalance.eligible_balance;
@@ -161,7 +162,8 @@ export class DisbursementService {
     }
 
     const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${customerBank.disbursement_method_id}`;
-    const disbursementMethod: any = await this.commonService.getHttp(url);
+    const disbursementMethod: any =
+      await this.commonService.getDetailStoreBalance(url);
     console.log(url, '=> disbursement.service.disbursementValidation > url');
     console.log(
       disbursementMethod,

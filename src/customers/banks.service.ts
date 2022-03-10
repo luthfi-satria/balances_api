@@ -137,7 +137,9 @@ export class BanksService {
       );
     }
     const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${customerBank.disbursement_method_id}`;
-    const disbursementMethod = await this.commonService.getHttp(url);
+    const disbursementMethod = await this.commonService.getDetailStoreBalance(
+      url,
+    );
     customerBank.disbursement_method = disbursementMethod;
     return customerBank;
   }
@@ -167,7 +169,9 @@ export class BanksService {
     }
     for (const custBank of customerBank.items) {
       const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${custBank.disbursement_method_id}`;
-      const disbursementMethod = await this.commonService.getHttp(url);
+      const disbursementMethod = await this.commonService.getDetailStoreBalance(
+        url,
+      );
       custBank.disbursement_method = disbursementMethod;
     }
     return customerBank;

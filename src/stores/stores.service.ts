@@ -113,7 +113,8 @@ export class StoresService {
       });
       if (idx == -1) {
         const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${storeBalance.disbursement_method_id}`;
-        const disbursementMethod = await this.commonService.getHttp(url);
+        const disbursementMethod =
+          await this.commonService.getDetailStoreBalance(url);
         if (disbursementMethod) {
           storeBalance.disbursement_method = disbursementMethod;
           listDisbursementMethod.push(disbursementMethod);
@@ -216,7 +217,9 @@ export class StoresService {
     );
     await this.maskingAccountNameNumber(store, 'store');
     const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${storeBalance.disbursement_method_id}`;
-    const disbursementMethod = await this.commonService.getHttp(url);
+    const disbursementMethod = await this.commonService.getDetailStoreBalance(
+      url,
+    );
     if (disbursementMethod) {
       storeBalance.disbursement_method = disbursementMethod;
     }
@@ -313,7 +316,8 @@ export class StoresService {
         });
         if (idx == -1) {
           const urlPay = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${store.bank_id}`;
-          const disbursementMethod = await this.commonService.getHttp(urlPay);
+          const disbursementMethod =
+            await this.commonService.getDetailStoreBalance(urlPay);
           if (disbursementMethod) {
             store.disbursement_method = disbursementMethod;
             listDisbursementMethod.push(disbursementMethod);
@@ -346,7 +350,8 @@ export class StoresService {
     console.log(store, '=> stores.service.storeDisbursementValidation > store');
     const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${store.bank_id}`;
     console.log(url, '=> stores.service.storeDisbursementValidation > url');
-    const disbursementMethod: any = await this.commonService.getHttp(url);
+    const disbursementMethod: any =
+      await this.commonService.getDetailStoreBalance(url);
     console.log(
       disbursementMethod,
       '=> stores.service.storeDisbursementValidation > disbursementMethod',
@@ -459,7 +464,8 @@ export class StoresService {
       if (!disbursementMethodIndex[store.bank_id]) {
         const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${store.bank_id}`;
         console.log(url, '=> stores.service.storeDisbursementScheduler > url');
-        const disbursementMethod: any = await this.commonService.getHttp(url);
+        const disbursementMethod: any =
+          await this.commonService.getDetailStoreBalance(url);
         console.log(
           disbursementMethod,
           '=> stores.service.storeDisbursementScheduler > disbursementMethod',
@@ -686,9 +692,8 @@ export class StoresService {
               url,
               '=> stores.service.storeDisbursementScheduler > url',
             );
-            const disbursementMethod: any = await this.commonService.getHttp(
-              url,
-            );
+            const disbursementMethod: any =
+              await this.commonService.getDetailStoreBalance(url);
             console.log(
               disbursementMethod,
               '=> stores.service.storeDisbursementScheduler > disbursementMethod',
