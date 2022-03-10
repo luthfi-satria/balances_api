@@ -112,7 +112,7 @@ export class StoresService {
         return ix.id == storeBalance.disbursement_method_id;
       });
       if (idx == -1) {
-        const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalance.disbursement_method_id}`;
+        const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${storeBalance.disbursement_method_id}`;
         const disbursementMethod = await this.commonService.getHttp(url);
         if (disbursementMethod) {
           storeBalance.disbursement_method = disbursementMethod;
@@ -215,7 +215,7 @@ export class StoresService {
       user,
     );
     await this.maskingAccountNameNumber(store, 'store');
-    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${storeBalance.disbursement_method_id}`;
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${storeBalance.disbursement_method_id}`;
     const disbursementMethod = await this.commonService.getHttp(url);
     if (disbursementMethod) {
       storeBalance.disbursement_method = disbursementMethod;
@@ -255,8 +255,10 @@ export class StoresService {
       );
     }
     if (store.bank_id) {
-      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
-      const disbursementMethod = await this.commonService.getHttp(url);
+      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${store.bank_id}`;
+      const disbursementMethod = await this.commonService.getDetailStoreBalance(
+        url,
+      );
       if (disbursementMethod) {
         store.disbursement_method = disbursementMethod;
       } else {
@@ -310,7 +312,7 @@ export class StoresService {
           return ix.id == store.bank_id;
         });
         if (idx == -1) {
-          const urlPay = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+          const urlPay = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${store.bank_id}`;
           const disbursementMethod = await this.commonService.getHttp(urlPay);
           if (disbursementMethod) {
             store.disbursement_method = disbursementMethod;
@@ -342,7 +344,7 @@ export class StoresService {
   ): Promise<any> {
     const store = await this.merchantService.merchantValidation(store_id, user);
     console.log(store, '=> stores.service.storeDisbursementValidation > store');
-    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${store.bank_id}`;
     console.log(url, '=> stores.service.storeDisbursementValidation > url');
     const disbursementMethod: any = await this.commonService.getHttp(url);
     console.log(
@@ -455,7 +457,7 @@ export class StoresService {
         '=> stores.service.storeDisbursementValidationBulk > store',
       );
       if (!disbursementMethodIndex[store.bank_id]) {
-        const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+        const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${store.bank_id}`;
         console.log(url, '=> stores.service.storeDisbursementScheduler > url');
         const disbursementMethod: any = await this.commonService.getHttp(url);
         console.log(
@@ -679,7 +681,7 @@ export class StoresService {
         );
         if (store.bank_id) {
           if (!disbursementMethodIndex[store.bank_id]) {
-            const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${store.bank_id}`;
+            const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${store.bank_id}`;
             console.log(
               url,
               '=> stores.service.storeDisbursementScheduler > url',

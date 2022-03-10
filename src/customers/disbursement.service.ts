@@ -55,7 +55,7 @@ export class DisbursementService {
       );
     }
 
-    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${customerBank.disbursement_method_id}`;
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${customerBank.disbursement_method_id}`;
     const disbursementMethod: any = await this.commonService.getHttp(url);
     const customerBalance: any =
       await this.customersService.detailCustomerBalance(customer_id);
@@ -160,7 +160,7 @@ export class DisbursementService {
       );
     }
 
-    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${customerBank.disbursement_method_id}`;
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${customerBank.disbursement_method_id}`;
     const disbursementMethod: any = await this.commonService.getHttp(url);
     console.log(url, '=> disbursement.service.disbursementValidation > url');
     console.log(

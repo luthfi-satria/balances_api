@@ -136,7 +136,7 @@ export class BanksService {
         404,
       );
     }
-    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${customerBank.disbursement_method_id}`;
+    const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${customerBank.disbursement_method_id}`;
     const disbursementMethod = await this.commonService.getHttp(url);
     customerBank.disbursement_method = disbursementMethod;
     return customerBank;
@@ -166,7 +166,7 @@ export class BanksService {
       );
     }
     for (const custBank of customerBank.items) {
-      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/payments/internal/disbursement_method/${custBank.disbursement_method_id}`;
+      const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${custBank.disbursement_method_id}`;
       const disbursementMethod = await this.commonService.getHttp(url);
       custBank.disbursement_method = disbursementMethod;
     }
