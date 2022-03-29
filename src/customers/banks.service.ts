@@ -118,6 +118,7 @@ export class BanksService {
     const customerBank = await this.customerBankRepository
       .findOne({
         where: { id: bank_id, customer_id: customer_id },
+        withDeleted: true,
       })
       .catch(async (err2) => {
         console.error(err2);
