@@ -66,6 +66,7 @@ export class BalancesService {
         storeBalanceHistory.status = eventStatus
           ? StoreTransactionStatus.SUCCESS
           : StoreTransactionStatus.FAILED;
+        storeBalanceHistory.notes = data.error_message;
         const saveStoreBalanceHistory =
           await this.storesService.saveStoreBalanceHistory(storeBalanceHistory);
 
