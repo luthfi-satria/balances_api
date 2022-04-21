@@ -442,6 +442,15 @@ export class StoresService {
     );
     await this.maskingAccountNameNumber(storeBalanceHistory.store, 'store');
 
+    if (!disbursementMethod) {
+      throw await this.responseService.httpExceptionHandling(
+        store.bank_id,
+        'bank_id',
+        'general.general.dataNotFound',
+        404,
+      );
+    }
+
     return storeBalanceHistory;
   }
 
