@@ -1,9 +1,17 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import _ from 'lodash';
 import moment from 'moment';
 import { CommonService } from 'src/common/common.service';
+import { MerchantService } from 'src/common/merchant/merchant.service';
+import { NatsService } from 'src/common/nats/nats.service';
+import { CreateAutoDisbursementBalanceDto } from 'src/common/redis/dto/redis-balance.dto';
+import { RedisBalanceService } from 'src/common/redis/redis-balance.service';
 import { ListResponse } from 'src/response/response.interface';
 import { ResponseService } from 'src/response/response.service';
+import { AutomaticDisburseAtValues } from 'src/settings/dto/settings.dto';
+import { SettingsDocument } from 'src/settings/entities/settings.entity';
 import { SettingsService } from 'src/settings/settings.service';
+import { cronGen } from 'src/utils/general-utils';
 import {
   ListStoresBalancesDto,
   ListStoresDto,
@@ -21,14 +29,6 @@ import {
 } from './entities/store_disbursement_history.entity';
 import { StoreBalanceHistoryRepository } from './repository/store_balance_history.repository';
 import { StoreDisbursementHistoryRepository } from './repository/store_disbursement_history.repository';
-import _ from 'lodash';
-import { MerchantService } from 'src/common/merchant/merchant.service';
-import { NatsService } from 'src/common/nats/nats.service';
-import { RedisBalanceService } from 'src/common/redis/redis-balance.service';
-import { CreateAutoDisbursementBalanceDto } from 'src/common/redis/dto/redis-balance.dto';
-import { cronGen } from 'src/utils/general-utils';
-import { SettingsDocument } from 'src/settings/entities/settings.entity';
-import { AutomaticDisburseAtValues } from 'src/settings/dto/settings.dto';
 
 @Injectable()
 export class StoresService {
@@ -189,6 +189,7 @@ export class StoresService {
   async detailStoresBalanceHistories(
     store_history_id: string,
     user: any,
+    unmask?: boolean,
   ): Promise<StoreBalanceHistoryDocument> {
     const storeBalance = await this.storeBalanceHistoryRepository
       .findOne(store_history_id)
@@ -209,13 +210,20 @@ export class StoresService {
         404,
       );
     }
-    await this.maskingAccountNameNumber(storeBalance, 'store_balance_history');
-
+    if (unmask === true && user.user_type !== 'admin') {
+      unmask = false;
+    }
     const store = await this.merchantService.merchantValidation(
       storeBalance.store_id,
       user,
     );
-    await this.maskingAccountNameNumber(store, 'store');
+    if (unmask === false) {
+      await this.maskingAccountNameNumber(
+        storeBalance,
+        'store_balance_history',
+      );
+      await this.maskingAccountNameNumber(store, 'store');
+    }
     const url = `${process.env.BASEURL_PAYMENTS_SERVICE}/api/v1/internal/payments/disbursement_method/${storeBalance.disbursement_method_id}`;
     const disbursementMethod = await this.commonService.getDetailStoreBalance(
       url,
