@@ -1,6 +1,7 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsIn,
   IsNotEmpty,
   isNotEmpty,
@@ -48,6 +49,11 @@ export class ListStoresBalancesDto {
   @IsArray()
   @IsIn(Object.values(StoreTransactionStatus), { each: true })
   statuses: StoreTransactionStatus[];
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value.toUpperCase() === 'TRUE')
+  unmask: boolean;
 }
 
 export class ListStoresDto {
