@@ -52,7 +52,7 @@ export class StoresController {
     const result = await this.storesService.detailStoresBalanceHistories(
       store_history_id,
       req.user,
-      query.unmask.toUpperCase() === 'TRUE',
+      query?.unmask?.toUpperCase() === 'TRUE',
     );
     return this.responseService.success(
       true,
