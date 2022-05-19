@@ -101,13 +101,18 @@ export class StoresService {
         404,
       );
     }
+    if (data.unmask === true && user.user_type !== 'admin') {
+      data.unmask = false;
+    }
     const listDisbursementMethod = [];
     const listStore = [];
     for (const storeBalance of storeBalances.items) {
-      await this.maskingAccountNameNumber(
-        storeBalance,
-        'store_balance_history',
-      );
+      if (data.unmask === false) {
+        await this.maskingAccountNameNumber(
+          storeBalance,
+          'store_balance_history',
+        );
+      }
       const idx = _.findIndex(listDisbursementMethod, function (ix: any) {
         return ix.id == storeBalance.disbursement_method_id;
       });
@@ -133,7 +138,9 @@ export class StoresService {
           storeBalance.store_id,
         );
         if (store) {
-          await this.maskingAccountNameNumber(store, 'store');
+          if (data.unmask === false) {
+            await this.maskingAccountNameNumber(store, 'store');
+          }
           storeBalance.store = store;
           listStore.push(store);
         }
