@@ -45,12 +45,14 @@ export class StoresController {
   @AuthJwtGuard()
   @ResponseStatusCode()
   async detailStoreBalanceHistories(
+    @Query() query: any,
     @Param('hid') store_history_id: string,
     @Req() req: any,
   ): Promise<RSuccessMessage> {
     const result = await this.storesService.detailStoresBalanceHistories(
       store_history_id,
       req.user,
+      query.unmask.toUpperCase() === 'TRUE',
     );
     return this.responseService.success(
       true,
