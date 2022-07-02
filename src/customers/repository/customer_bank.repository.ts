@@ -21,7 +21,6 @@ export class CustomerBankRepository extends Repository<CustomerBankDocument> {
       .where('customer_id = :cid', {
         cid: customer_id,
       })
-      .withDeleted()
       .orderBy('created_at', 'DESC')
       .skip((currentPage - 1) * perPage)
       .take(perPage);
