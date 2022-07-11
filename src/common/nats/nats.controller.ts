@@ -50,6 +50,12 @@ export class NatsController {
     this.customersService.saveCustomerRefund(data);
   }
 
+  @EventPattern('orders.order.cancelled_by_admin')
+  async orderCancelledByAdmin(@Payload() data: any) {
+    this.logger.log('orders.order.cancelled_by_admin');
+    this.customersService.saveCustomerRefund(data);
+  }
+
   @EventPattern('orders.order.completed')
   async orderCompleted(@Payload() data: any) {
     this.logger.log('orders.order.completed');
