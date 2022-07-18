@@ -40,6 +40,7 @@ export class CustomersService {
 
       const custBalanceHistoryData: Partial<CustomerBalanceHistoryDocument> = {
         order_id: data.id,
+        voucher_package_order_id: data.voucher_package_order_id,
         customer_id: data.customer_id,
         type: TransactionType.REFUND,
         amount: totalPayment,
