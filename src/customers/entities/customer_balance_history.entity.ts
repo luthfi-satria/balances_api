@@ -29,6 +29,9 @@ export class CustomerBalanceHistoryDocument {
   @Column({ nullable: true })
   order_id: string;
 
+  @Column({ nullable: true })
+  voucher_package_order_id: string;
+
   @Column()
   customer_id: string;
 
