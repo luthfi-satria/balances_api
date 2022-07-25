@@ -21,6 +21,7 @@ spec:
       containers:
       - name: balances
         image: ghcr.io/wofood/efood_balances
+        resources:
           requests:
             memory: "500Mi"
             cpu: "250m"
