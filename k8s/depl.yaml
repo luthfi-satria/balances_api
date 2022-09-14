@@ -22,9 +22,9 @@ spec:
       - name: balances
         image: ghcr.io/wofood/efood_balances
         # resources:
-        #   requests:
-        #     memory: "500Mi"
-        #     cpu: "250m"
+        #   limits:
+        #     memory: "128Mi"
+        #     cpu: "500m"
         ports:
           - name: balances
             protocol: TCP
