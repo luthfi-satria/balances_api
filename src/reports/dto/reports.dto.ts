@@ -29,12 +29,16 @@ export class exportExcelDto {
   store_id: string;
 
   @IsOptional()
-  @IsDate()
-  date_start: Date;
+  recorded_start: Date;
 
   @IsOptional()
-  @IsDate()
-  date_end: Date;
+  recorded_end: Date;
+
+  @IsOptional()
+  eligible_start: Date;
+
+  @IsOptional()
+  eligible_end: Date;
 
   @IsOptional()
   @IsString()
