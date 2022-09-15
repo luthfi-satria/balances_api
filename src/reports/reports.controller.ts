@@ -5,13 +5,15 @@ import { exportExcelDto } from './dto/reports.dto';
 import { ReportsService } from './reports.service';
 import ExcelJS from 'exceljs';
 import { UserType } from 'src/auth/guard/user-type.decorator';
+import { AuthJwtGuard } from 'src/auth/auth.decorator';
 
 @Controller('api/v1/balances')
 export class ReportsController {
   constructor(private readonly ReportService: ReportsService) {}
 
   @Get('/reports')
-  // @UserType('admin', 'merchant')
+  @AuthJwtGuard()
+  @UserType('admin', 'merchant')
   @ResponseStatusCode()
   async exportExcel(@Query() param: exportExcelDto, @Res() res: Response) {
     try {
