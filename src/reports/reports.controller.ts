@@ -28,6 +28,18 @@ export class ReportsController {
       });
 
       // add header
+      if (excelObjects && !excelObjects.ObjData[0]) {
+        excelObjects.ObjData[0] = {
+          Corporate: '',
+          Brand: '',
+          Store: '',
+          Recorded_at: '',
+          Eligible_at: '',
+          Amount: '',
+          Status: '',
+        };
+        excelObjects.rows = [['Data is empty', '', '', '', '', '', '']];
+      }
       excelObjects.rows.unshift(Object.keys(excelObjects.ObjData[0]));
 
       // assign data to rows
