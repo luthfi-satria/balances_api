@@ -60,6 +60,18 @@ export class StoreBalanceReportRepository extends Repository<StoreBalanceHistory
       });
 
       const storeBalance = await this.find({
+        select: [
+          'id',
+          'group_id',
+          'merchant_id',
+          'store_id',
+          'type',
+          'amount',
+          'status',
+          'recorded_at',
+          'eligible_at',
+          'disbursement_method_id',
+        ],
         where: src,
         take: limit,
         skip: offset,
