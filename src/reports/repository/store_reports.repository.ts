@@ -14,8 +14,8 @@ export class StoreBalanceReportRepository extends Repository<StoreBalanceHistory
         'limit',
         'recorded_start',
         'recorded_end',
-        'eligible_start',
-        'eligible_end',
+        // 'eligible_start',
+        // 'eligible_end',
         'sort',
         'orientation',
       ];
@@ -35,12 +35,12 @@ export class StoreBalanceReportRepository extends Repository<StoreBalanceHistory
       if (typeof param.recorded_end == 'undefined') {
         param.recorded_end = recordDate[0].max_record_date;
       }
-      if (typeof param.eligible_start == 'undefined') {
-        param.eligible_start = recordDate[0].min_eligible_date;
-      }
-      if (typeof param.eligible_end == 'undefined') {
-        param.eligible_end = recordDate[0].max_eligible_date;
-      }
+      // if (typeof param.eligible_start == 'undefined') {
+      //   param.eligible_start = recordDate[0].min_eligible_date;
+      // }
+      // if (typeof param.eligible_end == 'undefined') {
+      //   param.eligible_end = recordDate[0].max_eligible_date;
+      // }
 
       const src = {};
       Object.keys(param).forEach((key) => {
@@ -51,12 +51,13 @@ export class StoreBalanceReportRepository extends Repository<StoreBalanceHistory
             param['recorded_start'],
             param['recorded_end'],
           );
-        } else if (key == 'eligible_start' || key == 'eligible_end') {
-          src['eligible_at'] = Between(
-            param['eligible_start'],
-            param['eligible_end'],
-          );
         }
+        // else if (key == 'eligible_start' || key == 'eligible_end') {
+        //   src['eligible_at'] = Between(
+        //     param['eligible_start'],
+        //     param['eligible_end'],
+        //   );
+        // }
       });
 
       const storeBalance = await this.find({
