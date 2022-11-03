@@ -12,6 +12,7 @@ import { SettingsModule } from './settings/settings.module';
 import { SeederModule } from './database/seeders/seeder.module';
 import { StoresModule } from './stores/stores.module';
 import { BullModule } from '@nestjs/bull';
+import { ReportsModule } from './reports/reports.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -32,6 +33,7 @@ import { BullModule } from '@nestjs/bull';
     SettingsModule,
     SeederModule,
     StoresModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
