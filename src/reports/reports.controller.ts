@@ -12,8 +12,8 @@ export class ReportsController {
   constructor(private readonly ReportService: ReportsService) {}
 
   @Get('/reports')
-  @AuthJwtGuard()
-  @UserType('admin', 'merchant')
+  // @AuthJwtGuard()
+  // @UserType('admin', 'merchant')
   @ResponseStatusCode()
   async exportExcel(@Query() param: exportExcelDto, @Res() res: Response) {
     try {
