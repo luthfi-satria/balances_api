@@ -48,8 +48,8 @@ export class StoreBalanceReportRepository extends Repository<StoreBalanceHistory
           src[key] = param[key];
         } else if (key == 'recorded_start' || key == 'recorded_end') {
           src['recorded_at'] = Between(
-            param['recorded_start'],
-            param['recorded_end'],
+            param['recorded_start'] + ' ' + '00:00:00',
+            param['recorded_end'] + ' ' + '23:59:00',
           );
         }
         // else if (key == 'eligible_start' || key == 'eligible_end') {
