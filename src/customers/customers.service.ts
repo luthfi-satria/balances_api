@@ -52,11 +52,11 @@ export class CustomersService {
     }
   }
 
-  async saveCustomerRefundBulk(data: any) {
-    data.orders.forEach((order) => {
-      this.saveCustomerRefund(order);
-    });
-  }
+  // async saveCustomerRefundBulk(data: any) {
+  //   data.orders.forEach((order) => {
+  //     this.saveCustomerRefund(order);
+  //   });
+  // }
 
   async listCustomerBalanceHistories(
     data: ListCustomersBalancesDto,
