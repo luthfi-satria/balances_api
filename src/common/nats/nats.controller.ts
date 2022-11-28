@@ -74,9 +74,9 @@ export class NatsController {
     this.balancesService.paymentDisbursementStatus(data, false);
   }
 
-  @EventPattern('orders.order.multiple.delivery.cancelled_by_delivery')
-  async orderCancelledByDelivery(@Payload() data: any) {
-    this.logger.log('orders.order.cancelled_by_customer');
-    this.customersService.saveCustomerRefundBulk(data);
-  }
+  // @EventPattern('orders.order.multiple.delivery.cancelled_by_delivery')
+  // async orderCancelledByDelivery(@Payload() data: any) {
+  //   this.logger.log('orders.order.cancelled_by_customer');
+  //   this.customersService.saveCustomerRefundBulk(data);
+  // }
 }
