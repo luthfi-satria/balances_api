@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -22,6 +23,22 @@ export enum StoreTransactionStatus {
 }
 
 @Entity({ name: 'balances_store_balance_history' })
+@Index('IDX_rel_pencairan_saldo', [
+  'group_id',
+  'merchant_id',
+  'store_id',
+  'recorded_at',
+  'type',
+  'status',
+])
+@Index('IDX_disbursement_group_type_status', ['group_id', 'type', 'status'])
+@Index('IDX_disbursement_merchants_type_status', [
+  'merchant_id',
+  'type',
+  'status',
+])
+@Index('IDX_disbursement_stores_type_status', ['store_id', 'type', 'status'])
+@Index('IDX_disbursement_default', ['recorded_at', 'type', 'status'])
 export class StoreBalanceHistoryDocument {
   @PrimaryGeneratedColumn('uuid')
   id: string;
